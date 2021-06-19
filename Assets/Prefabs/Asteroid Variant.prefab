@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!54 &-6183147991119579906
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085380965436752966}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!64 &7384334211370423202
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085380965436752966}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: aae85a00b8397cd4f822fbbc9cab8dfa, type: 3}
+--- !u!1001 &6085380965436952492
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 199658, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_Name
+      value: Asteroid Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -892
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.2466764
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5.7416744
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 403962, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2353848, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 595e975c030901746813764e9f69480f, type: 2}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+--- !u!1 &6085380965436752966 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 199658, guid: dc134c807fe86f04aacd9559cad52091, type: 3}
+  m_PrefabInstance: {fileID: 6085380965436952492}
+  m_PrefabAsset: {fileID: 0}
