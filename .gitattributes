@@ -2,3 +2,6 @@ SpaceSkies[[:space:]]Free/** filter=lfs diff=lfs merge=lfs -text
 Textures/** filter=lfs diff=lfs merge=lfs -text
 Assets/SpaceSkies[[:space:]]Free/** filter=lfs diff=lfs merge=lfs -text
 Assets/Textures/** filter=lfs diff=lfs merge=lfs -text
+
+* linguist-vendored
+*.cs linguist-vendored=false
