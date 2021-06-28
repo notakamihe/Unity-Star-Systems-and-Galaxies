@@ -36,7 +36,7 @@ public class Ring : MonoBehaviour
 		}
 		BuildRingMesh();
 	}
-
+	
 	void SetUpRing()
 	{
 		//check if ring is null and there are no children

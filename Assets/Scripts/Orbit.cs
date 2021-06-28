@@ -12,8 +12,6 @@ public class Orbit : MonoBehaviour
     public float angle = 0.0f;
     public Vector3 tilt = Vector3.up;
     public bool isClockwise = false;
-    [HideInInspector]
-    public bool constrainOrbit = false;
 
     Vector3 spawnLocation;
 
@@ -26,5 +24,20 @@ public class Orbit : MonoBehaviour
     {
         transform.position = Utils.RotatePointAroundPivot(transform.position, parent.position, 
             Quaternion.Euler(tilt * ((isClockwise ? 1 : -1) * orbitalPeriod) * Time.deltaTime));
+    }
+
+    public static Orbit Create(string name, Vector3 position, Transform parent, float orbitalPeriod, Vector3 tilt, bool isClockwise)
+    {
+        GameObject orbitObj = new GameObject("Orbit of " + name);
+        orbitObj.transform.position = position;
+        orbitObj.transform.parent = parent;
+
+        Orbit orbit = orbitObj.AddComponent<Orbit>();
+        orbit.parent = parent;
+        orbit.orbitalPeriod = orbitalPeriod;
+        orbit.tilt = tilt;
+        orbit.isClockwise = isClockwise;
+
+        return orbit;
     }
 }

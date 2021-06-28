@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 [ExecuteInEditMode]
 public class Belt : MonoBehaviour
 {
     [Header("Spawner Settings")]
     public GameObject asteroidPrefab;
-    public int cubeDensity;
+    public int density;
     public int seed;
     public float innerRadius;
     public float outerRadius;
@@ -40,9 +41,35 @@ public class Belt : MonoBehaviour
             Initialize();
     }
 
+    public static Belt Create(Transform parent, Vector3 position, int density, float innerRadius, float thickness, float minOrbitSpeed,
+        float maxOrbitSpeed, float height, float minRotationSpeed, float maxRotationSpeed, float minDiameter, float maxDiameter, 
+        GameObject prefab)
+    {
+        GameObject obj = new GameObject("Belt");
+        obj.transform.position = position;
+        obj.transform.parent = parent;
+
+        Belt belt = obj.AddComponent<Belt>();
+        belt.asteroidPrefab = prefab;
+        belt.density = density;
+        belt.innerRadius = innerRadius;
+        belt.outerRadius = innerRadius + thickness;
+        belt.height = height;
+        belt.minOrbitSpeed = minOrbitSpeed;
+        belt.maxOrbitSpeed = maxOrbitSpeed;
+        belt.minRotationSpeed = minRotationSpeed;
+        belt.maxRotationSpeed = maxRotationSpeed;
+        belt.minDiameter = minDiameter;
+        belt.maxDiameter = maxDiameter;
+
+        belt.Initialize();
+
+        return belt;
+    }
+
     public void Initialize()
     {
-        for (int i = 0; i < cubeDensity; i++)
+        for (int i = 0; i < density; i++)
         {
             do
             {
@@ -68,5 +95,12 @@ public class Belt : MonoBehaviour
 
             asteroidObj.transform.SetParent(transform);
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Handles.color = Color.red;
+        Handles.DrawWireDisc(this.transform.position, Vector3.up, this.innerRadius);
+        Handles.DrawWireDisc(this.transform.position, Vector3.up, this.outerRadius);
     }
 }

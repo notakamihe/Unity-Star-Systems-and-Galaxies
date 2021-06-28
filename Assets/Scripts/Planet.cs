@@ -17,9 +17,28 @@ public class Planet : World
         base.FixedUpdate();
     }
 
-    public void setMaterial(Material material)
+    public Moon AddMoon(float distance, float orbitalPeriod, string name, float diameter, float axialTilt, float dayLength,
+        float mass, Vector3 orbitalAngleAxis, bool isRetrograde)
     {
-        Renderer renderer = GetComponent<Renderer>();
-        renderer.sharedMaterial = material;
+        Vector3 orbitPos = this.transform.position + this.transform.forward * (this.Radius + distance);
+        Orbit orbit = Orbit.Create(name, orbitPos, this.transform.parent, orbitalPeriod, orbitalAngleAxis, isRetrograde);
+        Moon moon = World.Create<Moon>(name, orbit.transform, diameter, axialTilt, dayLength, mass);
+
+        moon.transform.localPosition = Vector3.zero;
+
+        return moon;
+    }
+
+    public Ring AddRing(float innerRadius, float thickenss, Material material)
+    {
+        Ring ring = this.gameObject.AddComponent<Ring>();
+        ring.enabled = false;
+        ring.segments = 100;
+        ring.innerRadius = innerRadius;
+        ring.thickness = thickenss;
+        ring.transform.GetChild(0).GetComponent<Renderer>().sharedMaterial = material;
+        ring.enabled = true;
+
+        return ring;
     }
 }
