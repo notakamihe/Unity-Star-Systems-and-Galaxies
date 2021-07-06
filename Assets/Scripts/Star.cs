@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEditor;
 using Random = UnityEngine.Random;
 
+public enum Remnant { NeutronStar, BlackHole };
+
 [ExecuteInEditMode]
 [RequireComponent(typeof(Light))]
 public class Star : CelestialBody
@@ -12,6 +14,7 @@ public class Star : CelestialBody
     [HideInInspector] public StarSystem starSystem;
     public float growthSpeed = 5.0f;
     public float deathSize = 7000.0f;
+    public Remnant remnant;
 
     Light light;
     Behaviour halo;
@@ -20,6 +23,14 @@ public class Star : CelestialBody
     float maxSize;
 
     bool isDead = false;
+
+    public static string GeneratedName
+    {
+        get
+        {
+            return Utils.SelectNameFromFile("Assets/Scripts/Resources/StarNames.txt");
+        }
+    }
 
     protected override void OnEnable()
     {
@@ -30,8 +41,7 @@ public class Star : CelestialBody
         light = GetComponent<Light>();
         light.type = LightType.Point;
 
-        if (!this.halo)
-            this.halo = this.CreateHalo();
+        this.InitializeHalo();
 
         rb.useGravity = false;
         rb.isKinematic = true;
@@ -93,7 +103,7 @@ public class Star : CelestialBody
     void Die()
     {
         this.isDead = true;
-        Supernova supernova = Supernova.Create(this.transform.parent, this.transform.position);
+        Supernova supernova = Supernova.Create(this.transform.parent, this.transform.position, remnant);
         this.starSystem.Clear(supernova.transform);
     }
 
@@ -102,6 +112,20 @@ public class Star : CelestialBody
         this.SetDiameter(this.diameter + this.growthSpeed * Time.deltaTime);
         this.UpdateStar();
         this.SetColor(this.minSize, this.maxSize);
+    }
+
+    void InitializeHalo()
+    {
+        foreach (Transform child in this.transform)
+        {
+            if (child.GetComponent("Halo"))
+            {
+                this.halo = (Behaviour)child.GetComponent("Halo");
+                return;
+            }
+        }
+
+        this.halo = this.CreateHalo();
     }
 
     public void SetColor(float min, float max)
@@ -117,12 +141,14 @@ public class Star : CelestialBody
         else
             color = Color.Lerp(Color.yellow, Color.red, (t - 0.5f) * 2);
 
-            
-        var tempMaterial = new Material(this.renderer.sharedMaterial);
-        tempMaterial.SetColor("_EmissionColor", color);
-        renderer.sharedMaterial = tempMaterial;
+        if (this.renderer.sharedMaterial)
+        {
+            var tempMaterial = new Material(this.renderer.sharedMaterial);
+            tempMaterial.SetColor("_EmissionColor", color * 2.0f);
+            renderer.sharedMaterial = tempMaterial;
 
-        SetGlow(-2.25f * this.diameter + 17250.0f, color);
+            SetGlow(-2.25f * this.diameter + 17250.0f, color);
+        }
     }
 
     public void SetGlow(float size, Color color)
@@ -135,16 +161,16 @@ public class Star : CelestialBody
 
     void Swallow(CelestialBody body)
     {
-        EditorApplication.delayCall += () => {
+        if (body)
+        {
             if (body is Planet)
             {
-                DestroyImmediate(body.transform.parent.gameObject);
+                Utils.Destroy(this, body.transform.parent.gameObject);
                 return;
             }
-
-            if (body)
-                DestroyImmediate(body.gameObject);
-        };
+            
+            Utils.Destroy(this, body.gameObject);
+        }
     }
 
     public void UpdateStar()

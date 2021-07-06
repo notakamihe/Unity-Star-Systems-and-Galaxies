@@ -26,14 +26,15 @@ public class Orbit : MonoBehaviour
             Quaternion.Euler(tilt * ((isClockwise ? 1 : -1) * orbitalPeriod) * Time.deltaTime));
     }
 
-    public static Orbit Create(string name, Vector3 position, Transform parent, float orbitalPeriod, Vector3 tilt, bool isClockwise)
+    public static Orbit Create(string name, Vector3 position, Transform parent, Transform orbitParent, float orbitalPeriod, 
+        Vector3 tilt, bool isClockwise)
     {
         GameObject orbitObj = new GameObject("Orbit of " + name);
         orbitObj.transform.position = position;
         orbitObj.transform.parent = parent;
 
         Orbit orbit = orbitObj.AddComponent<Orbit>();
-        orbit.parent = parent;
+        orbit.parent = orbitParent;
         orbit.orbitalPeriod = orbitalPeriod;
         orbit.tilt = tilt;
         orbit.isClockwise = isClockwise;

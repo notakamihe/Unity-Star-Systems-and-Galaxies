@@ -33,6 +33,14 @@ public class Belt : MonoBehaviour
     private float y;
     private float z;
 
+    public float Thickness
+    {
+        get
+        {
+            return this.outerRadius - this.innerRadius;
+        }
+    }
+
     private void Awake()
     {
         Random.InitState(seed);
@@ -67,6 +75,16 @@ public class Belt : MonoBehaviour
         return belt;
     }
 
+    public void ClearAndInitialize()
+    {
+        foreach (Transform child in this.transform)
+        {
+            Utils.Destroy(this, child.gameObject);
+        }
+
+        this.Initialize();
+    }
+
     public void Initialize()
     {
         for (int i = 0; i < density; i++)
@@ -99,7 +117,7 @@ public class Belt : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        Handles.color = Color.red;
+        Handles.color = Color.white;
         Handles.DrawWireDisc(this.transform.position, Vector3.up, this.innerRadius);
         Handles.DrawWireDisc(this.transform.position, Vector3.up, this.outerRadius);
     }

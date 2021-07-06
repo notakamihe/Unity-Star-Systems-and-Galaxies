@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1446680840551429054
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1446680840551429052}
+  - component: {fileID: 1446680840551429053}
+  m_Layer: 0
+  m_Name: Singleton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4294967295
+  m_IsActive: 1
+--- !u!4 &1446680840551429052
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446680840551429054}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -14113.286, y: 0, z: -372.72852}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1446680840551429053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446680840551429054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0323d8db3746ed4a841af48b5ad85d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  halo: {fileID: 8562259140807292706, guid: 60d59677fb427ff49b2b51b9b0586275, type: 3}
+  gasGiantMats:
+  - {fileID: 2100000, guid: 3087a47eca959ad419be140c257b505b, type: 2}
+  - {fileID: 2100000, guid: 7412c169b6fc3e8408244e23cbf6d7c2, type: 2}
+  - {fileID: 2100000, guid: 34f072a8db828304da2895e6458bb5d6, type: 2}
+  - {fileID: 2100000, guid: 98f6b5cddcdc7e3468c489359757b62b, type: 2}
+  - {fileID: 2100000, guid: 05858b958d8fcf2428c27fe750cec917, type: 2}
+  - {fileID: 2100000, guid: c3a6a4a5582ce834d9b91c9a1047808b, type: 2}
+  - {fileID: 2100000, guid: ea569aa3bac7d5f4a9a529eced813d98, type: 2}
+  - {fileID: 2100000, guid: f64f802d002274a4db81d1676d575d06, type: 2}
+  terrestrialMats:
+    hot:
+    - {fileID: 2100000, guid: f61bbb0000c06a14abe4b9d3a7b0f8f0, type: 2}
+    - {fileID: 2100000, guid: 5e784abe7e502d34d9d96c4648ad1425, type: 2}
+    - {fileID: 2100000, guid: bcc6bb6c8870c34439271feb7eed2a96, type: 2}
+    - {fileID: 2100000, guid: 79e744c602e3e3244b866027645a088d, type: 2}
+    - {fileID: 2100000, guid: 26438dba75739e545a99adb629ef1f5d, type: 2}
+    habitable:
+    - {fileID: 2100000, guid: d16f926fd8d9fdd499a210fdaa9aff70, type: 2}
+    - {fileID: 2100000, guid: 4db00de650ab3b44c9587e8003f8e275, type: 2}
+    - {fileID: 2100000, guid: 195cf2e7e183fad48ab6ee106f749696, type: 2}
+    - {fileID: 2100000, guid: cb5c88a3324bc57448dcb5e6b052d940, type: 2}
+    - {fileID: 2100000, guid: 30a99783a3bd112448a0b231b80a7b69, type: 2}
+    - {fileID: 2100000, guid: 5aac9f850c56e634ab8ffd785452e847, type: 2}
+    - {fileID: 2100000, guid: af2eb5968ba120341816e5bb3b220fd2, type: 2}
+    cold:
+    - {fileID: 2100000, guid: 23282decd2a67f24fb42792375757088, type: 2}
+    - {fileID: 2100000, guid: 34ade56e9e51e4444b1e5c7e7ba8c526, type: 2}
+    - {fileID: 2100000, guid: 9159da1738cfed848a1248f46b122988, type: 2}
+    - {fileID: 2100000, guid: 635e24745fa7cb34bb502fbf33096a21, type: 2}
+    - {fileID: 2100000, guid: e0208a454c9cc3245ae7612d51211765, type: 2}
+    - {fileID: 2100000, guid: 8b52edefd2b8ec244a52c433376d58ca, type: 2}
+    - {fileID: 2100000, guid: 7c1e484a970ca58438426b33f34e8729, type: 2}
+  ringMats:
+  - {fileID: 2100000, guid: b914b626c24a5a54ea86916f057a8bd8, type: 2}
+  - {fileID: 2100000, guid: 0b6a32f31a243684eb9a38f3cc591103, type: 2}
+  - {fileID: 2100000, guid: 67bdc3cdaba8d354c8cd775919faa9e2, type: 2}
+  - {fileID: 2100000, guid: ce4cdd1f7368e684b90db5f0fbdd5d83, type: 2}
+  - {fileID: 2100000, guid: 35822330897e21944b15e139f3acf578, type: 2}
+  asteroidPrefabs:
+  - {fileID: 6085380965436752966, guid: 428358b01d12f00448af0823fc5ae4ac, type: 3}
+  - {fileID: 1049921165818187444, guid: 78c86dddd0ad52b44995c45b4818a7ba, type: 3}
+  - {fileID: 4023639413873580303, guid: f472a1c4030ab8f40bfb95fec62e71a6, type: 3}
+  boundaryMat: {fileID: 2100000, guid: b53f213cb705ec34a869f7ce82fda54d, type: 2}
+  atmosphereMat: {fileID: 2100000, guid: 2c514eb30aa180540966e8c3b45e24f6, type: 2}
+  supernovaPrefab: {fileID: 5326221249311632604, guid: eebdb4c0e687b074ba91a0d9b923c888, type: 3}
+  blackHoleMat: {fileID: 2100000, guid: b153154893d827f488c8a7695e7d9fbd, type: 2}
+  neutronStarMat: {fileID: 2100000, guid: 08b968877e755104cbaba329f9d5797f, type: 2}
+  blackHoleVFX: {fileID: 1676440489513134061, guid: c435288e977c15849911043d82ccc952, type: 3}
+  neutronStarVFX: {fileID: 7073510216735599134, guid: f14ccf7413598a64891aacca5fc5f667, type: 3}

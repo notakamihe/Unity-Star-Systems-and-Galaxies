@@ -13,27 +13,43 @@ public class Atmosphere : MonoBehaviour
     GameObject obj;
     World world;
 
+    private void OnValidate()
+    {
+        this.SetThiccness(this.thiccness);
+        this.SetColor(this.color);
+    }
+
     private void Awake()
     {
         this.world = GetComponent<World>();
 
         if (this.world)
         {
+            foreach (Transform child in this.transform)
+            {
+                if (child.CompareTag("Atmosphere"))
+                {
+                    this.obj = child.gameObject;
+                    return;
+                }
+            }
+
             obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             obj.transform.parent = this.world.transform;
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localScale = Vector3.one * 1.15f;
             obj.GetComponent<Renderer>().material = Singleton.Instance.atmosphereMat;
+            obj.tag = "Atmosphere";
 
             this.SetThiccness(this.thiccness);
             this.SetColor(color);
         }
     }
 
-    private void OnValidate()
+    public void Destroy()
     {
-        this.SetThiccness(this.thiccness);
-        this.SetColor(this.color);
+        Utils.Destroy(this, this.obj);
+        Utils.Destroy(this, this);
     }
 
     public void SetThiccness(float thiccness)

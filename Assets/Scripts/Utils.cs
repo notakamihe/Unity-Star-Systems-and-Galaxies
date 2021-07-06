@@ -1,14 +1,19 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 using Random = UnityEngine.Random;
+using Object = UnityEngine.Object;
 
 
-public class Utils
+public static class Utils
 {
+    public static void Destroy(MonoBehaviour instance, Object obj)
+    {
+        instance.StartCoroutine(WaitAndDestroy(obj));
+    }
+
     public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion angle)
     {
         return angle * (point - pivot) + pivot;
@@ -23,5 +28,17 @@ public class Utils
         {
             return default;
         }
+    }
+    
+    static IEnumerator WaitAndDestroy(Object obj)
+    {
+        yield return new WaitForEndOfFrame();
+        Object.DestroyImmediate(obj);
+    }
+
+    public static string SelectNameFromFile (string path)
+    {
+        string[] names = File.ReadAllLines(path);
+        return RandomChoose(names);
     }
 }

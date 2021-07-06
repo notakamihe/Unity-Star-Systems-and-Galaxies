@@ -36,14 +36,34 @@ public class Ring : MonoBehaviour
 		}
 		BuildRingMesh();
 	}
-	
-	void SetUpRing()
+
+    public void Destroy()
+    {
+		Utils.Destroy(this, this.ring);
+		Utils.Destroy(this, this);
+    }
+
+    void SetUpRing()
 	{
+		foreach (Transform child in this.transform)
+        {
+			if (child.CompareTag("Ring"))
+            {
+				ring = child.gameObject;
+				ringMF = ring.GetComponent<MeshFilter>();
+				ringMR = ring.GetComponent<MeshRenderer>();
+				ringMesh = new Mesh();
+				ringMF.sharedMesh = ringMesh;
+				return;
+			}
+        }
+
 		//check if ring is null and there are no children
-		if (ring == null && transform.childCount == 0)
+		if (ring == null)
 		{
 			//create ring object
 			ring = new GameObject(name + " Ring");
+			ring.tag = "Ring";
 			ring.transform.parent = transform;
 			ring.transform.SetAsFirstSibling();
 			ring.transform.localScale = Vector3.one;
@@ -59,6 +79,7 @@ public class Ring : MonoBehaviour
 			ringMF = ring.GetComponent<MeshFilter>();
 			ringMR = ring.GetComponent<MeshRenderer>();
 		}
+
 		ringMesh = new Mesh();
 		ringMF.sharedMesh = ringMesh;
 	}
@@ -110,6 +131,7 @@ public class Ring : MonoBehaviour
 		}
 		ringMesh.uv = uv;
 		ringMesh.RecalculateNormals();
-	}
 
+		ringMR.sharedMaterial = ringMat;
+	}
 }

@@ -22,11 +22,19 @@ public class CelestialBody : MonoBehaviour
 
     protected Renderer renderer;
 
+    public Material Material
+    {
+        get
+        {
+            return this.renderer.sharedMaterial;
+        }
+    }
+
     public float Radius
     {
         get
         {
-            return diameter * 0.5f;
+            return this.diameter * 0.5f;
         }
     }
 

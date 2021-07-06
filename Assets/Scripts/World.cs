@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class World : CelestialBody
 {
     public float dayLength = 1.0f;
     public float axialTilt = 0.0f;
+
+    [HideInInspector] public Atmosphere atmosphere;
 
     public float Gravity
     {
@@ -24,8 +21,7 @@ public class World : CelestialBody
     {
         get
         {
-            string[] names = File.ReadAllLines("Assets/Scripts/PlanetNames.txt");
-            return Utils.RandomChoose(names);
+            return Utils.SelectNameFromFile("Assets/Scripts/Resources/PlanetNames.txt");
         }
     }
 
@@ -40,9 +36,12 @@ public class World : CelestialBody
     protected override void OnEnable()
     {
         base.OnEnable();
-        rb.isKinematic = true;
+
+        this.rb.isKinematic = true;
         this.SetDiameter(diameter);
         this.SetTilt(axialTilt);
+
+        this.atmosphere = this.GetComponent<Atmosphere>() ?? null;
     }
 
     protected override void FixedUpdate()
@@ -67,11 +66,23 @@ public class World : CelestialBody
 
     public Atmosphere AddAtmosphere(float thickness, Color color)
     {
-        Atmosphere atmosphere = this.gameObject.AddComponent<Atmosphere>();
-        atmosphere.SetThiccness(thickness);
-        atmosphere.SetColor(color);
+        this.atmosphere = this.gameObject.AddComponent<Atmosphere>();
+        this.atmosphere.SetThiccness(thickness);
+        this.atmosphere.SetColor(color);
 
         return atmosphere;
+    }
+
+    public void RemoveAtmosphere()
+    {
+        this.atmosphere?.Destroy();
+        this.atmosphere = null;
+    }
+
+    public void RemoveRing()
+    {
+        if (this.TryGetComponent(out Ring ring))
+            ring.Destroy();
     }
 
     public void SetTilt(float axialTilt)
