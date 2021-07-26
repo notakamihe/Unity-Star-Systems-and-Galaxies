@@ -7,7 +7,8 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Atmosphere : MonoBehaviour
 {
-    public float thiccness = 4f;
+    [Range(0.01f, 2.0f)] public float thickness = 0.25f;
+    [Range(0.0f, 2.0f)] public float ambience = 1.0f;
     public Color color = Color.blue;
 
     GameObject obj;
@@ -15,8 +16,12 @@ public class Atmosphere : MonoBehaviour
 
     private void OnValidate()
     {
-        this.SetThiccness(this.thiccness);
-        this.SetColor(this.color);
+        if (this.obj)
+        {
+            this.SetThickness(this.thickness);
+            this.SetColor(this.color);
+            this.SetAmbience(this.ambience);
+        }
     }
 
     private void Awake()
@@ -37,11 +42,11 @@ public class Atmosphere : MonoBehaviour
             obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             obj.transform.parent = this.world.transform;
             obj.transform.localPosition = Vector3.zero;
-            obj.transform.localScale = Vector3.one * 1.15f;
+            obj.transform.localScale = Vector3.one;
             obj.GetComponent<Renderer>().material = Singleton.Instance.atmosphereMat;
             obj.tag = "Atmosphere";
 
-            this.SetThiccness(this.thiccness);
+            this.SetThickness(this.thickness);
             this.SetColor(color);
         }
     }
@@ -52,16 +57,16 @@ public class Atmosphere : MonoBehaviour
         Utils.Destroy(this, this);
     }
 
-    public void SetThiccness(float thiccness)
+    public void SetAmbience(float ambience)
     {
-        this.thiccness = thiccness;
+        this.ambience = ambience;
 
         Renderer renderer = obj?.GetComponent<Renderer>();
 
-        if (renderer)
+        if (renderer && renderer.sharedMaterial)
         {
             var tempMaterial = new Material(renderer.sharedMaterial);
-            tempMaterial.SetFloat("_Thickness", thiccness);
+            tempMaterial.SetFloat("_Ambient", ambience);
             renderer.sharedMaterial = tempMaterial;
         }
     }
@@ -72,11 +77,26 @@ public class Atmosphere : MonoBehaviour
 
         Renderer renderer = obj?.GetComponent<Renderer>();
 
-        if (renderer)
+        if (renderer && renderer.sharedMaterial)
         { 
             var tempMaterial = new Material(renderer.sharedMaterial);
             tempMaterial.SetColor("_Color", color);
             renderer.sharedMaterial = tempMaterial;
         }
     }
+
+    public void SetThickness(float thickness)
+    {
+        this.thickness = thickness;
+
+        Renderer renderer = obj.GetComponent<Renderer>();
+
+        if (renderer && renderer.sharedMaterial)
+        {
+            var tempMaterial = new Material(renderer.sharedMaterial);
+            tempMaterial.SetFloat("_Thickness", thickness);
+            renderer.sharedMaterial = tempMaterial;
+        }
+    }
+
 }

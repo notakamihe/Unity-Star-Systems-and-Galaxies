@@ -1,25 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 
 public class CustomizableStarSystem : StarSystem
 {
-    [Range(7000, 20000)] public float starDeathSize = 10000.0f;
+    [Range(1000.0f, 100000.0f)] public float starSize = 1000.0f;
+    [Range(0.0f, 50.0f)] public float starGrowthSpeed = 5.0f;
+    public bool isProgradeClockwise = false;
+    public Material starMat;
+    public string starName = "My Star System";
+    public Color starColor = Color.yellow;
+    [Range(1.0f, 200.0f)] public float starLuminosity = 1.0f;
+    public float starMass = 100000000.0f;
+    [Range(2000.0f, 40000.0f)] public float starTemperature = 5000.0f;
+    public float starDeathSize = 10000.0f;
+    public StarType starType;
     public Remnant stellarRemnant;
 
     public List<CustomizablePlanet> planets = new List<CustomizablePlanet>();
     public List<CustomizableBelt> belts = new List<CustomizableBelt>();
     public List<CustomizableDwarfPlanet> dwarfPlanets = new List<CustomizableDwarfPlanet>();
-    public CustomizableBoundary boundary;
 
     List<CustomizablePlanet> prevPlanets = new List<CustomizablePlanet>();
     List<CustomizableBelt> prevBelts = new List<CustomizableBelt>();
     List<CustomizableDwarfPlanet> prevDwarfPlanets = new List<CustomizableDwarfPlanet>();
 
+    bool initialized = false;
+    bool probeEntered = false;
+
+    float starStartTemperature;
+    float starEndTemperature;
+    float starStartLuminosity;
+    float starEndLuminosity;
+
     private void Start()
     {
+        if (PrefabUtility.GetPrefabInstanceHandle(this.gameObject) != null)
+            PrefabUtility.UnpackPrefabInstance(this.gameObject, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+
         List<CustomizablePlanet> newPlanets = new List<CustomizablePlanet>();
         List<CustomizableBelt> newBelts = new List<CustomizableBelt>();
         List<CustomizableDwarfPlanet> newDwarfPlanets = new List<CustomizableDwarfPlanet>();
@@ -31,29 +53,29 @@ public class CustomizableStarSystem : StarSystem
 
             if (planet.GetType().Equals(typeof(Planet)))
             {
-                cp = new CustomizablePlanet(orbit, planet, planet.axialTilt, planet.dayLength, planet.diameter,
-                    this.star.DistanceFromSurface(orbit.transform.position), planet.atmosphere, planet.mass, planet.name, orbit.orbitalPeriod,
-                    planet.temperature, planet.Material, planet.GetComponent<Ring>());
+                cp = new CustomizablePlanet(orbit, planet, planet.axialTilt, planet.day, planet.diameter,
+                    this.star.DistanceFromSurface(orbit.transform.position), planet.atmosphere, orbit.inclination, 
+                    planet.mass, planet.name, orbit.period, planet.temperature, planet.Material, planet.GetComponent<Ring>());
 
                 newPlanets.Add(cp);
             }
             else if (planet.GetType().Equals(typeof(DwarfPlanet)))
             {
-                cp = new CustomizableDwarfPlanet(orbit, planet, planet.axialTilt, planet.dayLength, planet.diameter,
-                    this.star.DistanceFromSurface(orbit.transform.position), planet.atmosphere, planet.mass, planet.name, orbit.orbitalPeriod,
-                    planet.temperature, planet.Material, planet.GetComponent<Ring>(), orbit.tilt.x * 45.0f);
+                cp = new CustomizableDwarfPlanet(orbit, planet, planet.axialTilt, planet.day, planet.diameter,
+                    this.star.DistanceFromSurface(orbit.transform.position), planet.atmosphere, orbit.inclination, 
+                    planet.mass, planet.name, orbit.period, planet.temperature, planet.Material, planet.GetComponent<Ring>());
 
                 newDwarfPlanets.Add((CustomizableDwarfPlanet)cp);
             }
 
             List<CustomizableMoon> newMoons = new List<CustomizableMoon>();
 
-            foreach (Moon moon in this.GetComponentsInChildren(typeof(Moon)))
+            foreach (Moon moon in planet.GetComponentsInChildren<Moon>())
             {
                 Orbit moonOrbit = moon.GetComponentInParent<Orbit>();
-                CustomizableMoon cm = new CustomizableMoon(moonOrbit, moon, moon.axialTilt, moon.dayLength, moon.diameter,
-                    planet.DistanceFromSurface(moon.transform.position), planet.GetComponent<Atmosphere>(), moon.mass, moon.name, orbit.orbitalPeriod, moon.temperature,
-                    moon.Material, planet);
+                CustomizableMoon cm = new CustomizableMoon(moonOrbit, moon, moon.axialTilt, moon.day, moon.diameter,
+                    planet.DistanceFromSurface(moon.transform.position), moon.atmosphere, orbit.inclination, moon.isTidallyLocked, 
+                    moon.mass, moon.name, orbit.period, moon.temperature, moon.Material, planet);
 
                 newMoons.Add(cm);
             }
@@ -63,17 +85,10 @@ public class CustomizableStarSystem : StarSystem
 
         foreach (Belt belt in this.GetComponentsInChildren(typeof(Belt)))
         {
-            CustomizableBelt cb = new CustomizableBelt(belt, belt.gameObject.name, belt.density, belt.innerRadius, belt.Thickness,
-                belt.height, belt.rotatingClockwise, belt.minOrbitSpeed, belt.maxOrbitSpeed, belt.minDiameter, belt.maxDiameter);
+            CustomizableBelt cb = new CustomizableBelt(belt, belt.gameObject.name, belt.asteroidPrefab, belt.density, belt.innerRadius, 
+                belt.Thickness, belt.height, belt.rotatingClockwise, belt.minOrbitSpeed, belt.maxOrbitSpeed, belt.minDiameter, belt.maxDiameter);
 
             newBelts.Add(cb);
-        }
-
-        Boundary boundary = this.GetComponentInChildren<Boundary>();
-
-        if (boundary != null)
-        {
-            this.boundary = new CustomizableBoundary(boundary, boundary.name, boundary.radius, boundary.particleSize, boundary.color);
         }
 
         this.prevPlanets = newPlanets;
@@ -81,33 +96,143 @@ public class CustomizableStarSystem : StarSystem
         this.prevDwarfPlanets = newDwarfPlanets;
 
         this.UpdateStar();
+
+        this.initialized = true;
     }
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
+
         Star star = this.GetComponentInChildren<Star>();
 
         if (star)
             this.star = star;
         else
             this.star = this.CreateStar(Star.GeneratedName + " (Star)");
+
+        this.starName = this.star.name;
+        this.star.starSystem = this;
+        this.SetSize();
     }
 
     private void OnValidate()
     {
-        this.UpdateSystem();
+        if (this.initialized)
+            this.UpdateSystem();
     }
 
     public override void Clear(Transform target = null)
     {
         foreach (Transform child in this.transform)
         {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                if (child != target)
-                    DestroyImmediate(child?.gameObject);
-            };
+            if (child != target) Utils.Destroy(this, child.gameObject);
         }
+    }
+
+    protected Star CreateStar(string name)
+    {
+        star = Star.Create(name, this, this.starMat);
+        star.transform.localPosition = Vector3.zero;
+        this.UpdateSystem();
+
+        return star;
+    }
+
+    protected override void GetNearestPlanets()
+    {
+        if (this.star && SpaceProbe.probe)
+        {
+            Vector3 probePosFlat = SpaceProbe.probe.transform.position;
+            Vector3 starPosFlat = this.star.transform.position;
+
+            probePosFlat.y = 0.0f;
+            starPosFlat.y = 0.0f;
+
+            float distanceFlat = Vector3.Distance(probePosFlat, starPosFlat) - this.star.Radius;
+            List<CustomizablePlanet> planets = this.planets.Concat(this.dwarfPlanets).ToList();
+
+            Customizable prevPlanet = planets.Where(c => c.distance < distanceFlat).OrderByDescending(c => c.distance).FirstOrDefault();
+            Customizable nextPlanet = planets.Where(c => c.distance > distanceFlat).OrderBy(c => c.distance).FirstOrDefault();
+
+            if (prevPlanet != null)
+            {
+                try
+                {
+                    float distanceFromPrev = ((CustomizablePlanet)prevPlanet).world.DistanceFromSurface(SpaceProbe.probe.transform.position);
+                    SpaceProbe.probe.probeCamera.ui.precedingPlanet.text =
+                        $"▲ {prevPlanet.name.ToUpper()} IN {Units.ToDistanceUnit(distanceFromPrev)}";
+                }
+                catch (Exception)
+                {
+                }
+            }
+            else
+            {
+                SpaceProbe.probe.probeCamera.ui.precedingPlanet.text =
+                    $"▲ {this.star.name.ToUpper()} IN {Units.ToDistanceUnit(this.star.DistanceFromSurface(SpaceProbe.probe.transform.position))}";
+            }
+
+            if (nextPlanet != null)
+            {
+                try
+                {
+                    float distanceFromNext = ((CustomizablePlanet)nextPlanet).world.DistanceFromSurface(SpaceProbe.probe.transform.position);
+                    SpaceProbe.probe.probeCamera.ui.succeedingPlanet.text =
+                        $"▼ {nextPlanet.name.ToUpper()} IN {Units.ToDistanceUnit(distanceFromNext)}";
+                }
+                catch (Exception)
+                {
+                }
+            }
+            else
+            {
+                SpaceProbe.probe.probeCamera.ui.succeedingPlanet.text =
+                    $"▼ EDGE OF SYSTEM IN {Units.ToDistanceUnit(this.size - distanceFlat)}";
+            }
+
+            foreach (CustomizableBelt cb in this.belts)
+            {
+                if (!SpaceProbe.probe.probeCamera.isLookingAtSomething && cb.belt.Contains(SpaceProbe.probe.transform.position))
+                {
+                    SpaceProbeUI ui = SpaceProbe.probe.probeCamera.ui;
+
+                    ui.SetUI(ui.beltUI);
+                    ui.beltUI.name.text = cb.name.ToUpper();
+                    ui.beltUI.distanceFromStar.text = $"{Units.ToDistanceUnit(cb.distance - this.star.Radius)} AWAY FROM STAR";
+                    ui.beltUI.thickness.text = $"{Units.ToDistanceUnit(cb.thickness)} THICK";
+
+                    break;
+                }
+            }
+        }
+    }
+
+    protected override void SetSize()
+    {
+        CustomizablePlanet farthestPlanet = this.planets.OrderByDescending(p => p.distance).FirstOrDefault();
+        CustomizableBelt farthestBelt = this.belts.OrderByDescending(b => b.distance + b.thickness).FirstOrDefault();
+        CustomizableDwarfPlanet farthestDwarfPlanet = this.dwarfPlanets.OrderByDescending(dp => dp.distance).FirstOrDefault();
+
+        float newSize = this.star.diameter;
+
+        if (farthestPlanet != null && farthestPlanet.distance > newSize)
+        {
+            newSize = farthestPlanet.distance;
+        }
+
+        if (farthestDwarfPlanet != null && farthestDwarfPlanet.distance > newSize)
+        {
+            newSize = farthestDwarfPlanet.distance;
+        }
+
+        if (farthestBelt != null && farthestBelt.distance + farthestBelt.thickness > newSize)
+        {
+            newSize = farthestBelt.distance + farthestBelt.thickness;
+        }
+
+        this.size = newSize * 1.25f + this.star.Radius;
+        this.collider.radius = this.size;
     }
 
     protected override void SetSystem()
@@ -115,10 +240,9 @@ public class CustomizableStarSystem : StarSystem
         this.UpdateCelestialBodies(ref this.planets, ref this.prevPlanets);
         this.UpdateCelestialBodies(ref this.belts, ref this.prevBelts);
         this.UpdateCelestialBodies(ref this.dwarfPlanets, ref this.prevDwarfPlanets);
-        this.UpdateBoundary();
     }
 
-    public void ReduceCelestialBodies<T>(ref List<T> curr, ref List<T> prev)
+    public void ReduceCelestialBodies<T>(ref List<T> curr, ref List<T> prev) where T : Customizable
     {
         for (int i = 0; i < prev.Count; i++)
         {
@@ -126,10 +250,10 @@ public class CustomizableStarSystem : StarSystem
             {
                 if (typeof(T).IsSubclassOf(typeof(CustomizableWorld)))
                 {
-                    CustomizableWorld world = (CustomizableWorld)(object)prev[i];
+                    CustomizableWorld cw = prev[i] as CustomizableWorld;
 
-                    if (world.orbit)
-                        Utils.Destroy(this, world.orbit.gameObject);
+                    if (cw.orbit)
+                        Utils.Destroy(this, cw.orbit.gameObject);
                 }
                 else if (typeof(T).Equals(typeof(CustomizableBelt)))
                 {
@@ -153,28 +277,30 @@ public class CustomizableStarSystem : StarSystem
                     List<CustomizablePlanet> currPlanets = curr.OfType<CustomizablePlanet>().ToList();
 
                     string name = World.GeneratedName;
-                    float distance = i * CelestialBody.AU + 100.0f + this.star.Radius;
-                    Vector3 orbitPos = this.star.transform.position + this.star.transform.forward * distance;
+                    float distance = i * Units.AU + 100.0f;
+                    Vector3 orbitPos = this.star.transform.position + this.star.transform.forward * (distance + this.star.Radius);
 
-                    Orbit orbit = Orbit.Create(name, orbitPos, this.transform, this.star.transform, 10.0f, Vector3.up, this.isProgradeClockwise);
-                    Planet planet = World.Create<Planet>(name, orbit.transform, 50.0f, 0.0f, 10.0f, 5000.0f);
+                    Orbit orbit = Orbit.Create(name, orbitPos, this.transform, this.star.transform, 100.0f, Vector3.up, 
+                        this.isProgradeClockwise, 0.0f);
+                    Planet planet = World.Create<Planet>(name, orbit.transform, 50.0f, 0.0f, 20.0f, 100.0f);
 
                     currPlanets[i].orbit = orbit;
                     currPlanets[i].world = planet;
 
                     currPlanets[i].SetTilt(planet.axialTilt);
-                    currPlanets[i].SetDayLength(planet.dayLength);
+                    currPlanets[i].SetDayLength(planet.day);
                     currPlanets[i].SetDiameter(planet.diameter);
                     currPlanets[i].SetDistance(distance, this.star, this.star.transform.forward);
                     currPlanets[i].SetHasAtmosphere(false);
+                    currPlanets[i].SetInclination(orbit.inclination);
                     currPlanets[i].SetMass(planet.mass);
                     currPlanets[i].SetName(planet.name);
-                    currPlanets[i].SetOrbitalPeriod(orbit.orbitalPeriod);
-                    currPlanets[i].SetRing(false);
+                    currPlanets[i].SetOrbitalPeriod(orbit.period);
                     currPlanets[i].SetTemperature(planet.temperature);
-                    currPlanets[i].UpdateMoons(this);
+                    currPlanets[i].SetRing(false);
 
-                    planet.transform.localPosition = Vector3.zero;
+                    currPlanets[i].UpdateMoons(this);
+                    currPlanets[i].world.transform.localPosition = Vector3.zero;
                 }
                 else if (typeof(T).Equals(typeof(CustomizableMoon)))
                 {
@@ -183,102 +309,87 @@ public class CustomizableStarSystem : StarSystem
                     CustomizableMoon cm = currMoons[i];
 
                     string name = World.GeneratedName;
-                    float distance = i * 15.0f + 10.0f + cm.parent.Radius;
-                    Vector3 orbitPos = cm.parent.transform.position + cm.parent.transform.forward * distance;
+                    float distance = i * 15.0f + 10.0f;
+                    Vector3 orbitPos = cm.parent.transform.position + cm.parent.transform.forward * (distance + cm.parent.Radius);
 
-                    Orbit orbit = Orbit.Create(name, orbitPos, cm.parent.transform.parent, cm.parent.transform, 50.0f, cm.parent.transform.up,
-                        false);
-                    Moon moon = World.Create<Moon>(name, orbit.transform, 1.0f, 0.0f, 20.0f, 2000.0f);
+                    Orbit orbit = Orbit.Create(name, orbitPos, cm.parent.transform.parent, cm.parent.transform, 10.0f, cm.parent.transform.up,
+                        this.isProgradeClockwise, 0.0f);
+                    Moon moon = World.Create<Moon>(name, orbit.transform, 1.0f, 0.0f, 20.0f, 10.0f);
 
                     cm.orbit = orbit;
                     cm.world = moon;
 
                     cm.SetTilt(moon.axialTilt);
-                    cm.SetDayLength(moon.dayLength);
+                    cm.SetDayLength(moon.day);
                     cm.SetDiameter(moon.diameter);
                     cm.SetDistance(distance, cm.parent, cm.parent.transform.forward);
                     cm.SetHasAtmosphere(false);
+                    cm.SetInclination(orbit.inclination);
+                    cm.SetIsTidallyLocked(moon.isTidallyLocked);
                     cm.SetMass(moon.mass);
                     cm.SetName(moon.name);
-                    cm.SetOrbitalPeriod(orbit.orbitalPeriod);
+                    cm.SetOrbitalPeriod(orbit.period);
                     cm.SetTemperature(moon.temperature);
 
-                    moon.transform.localPosition = Vector3.zero;
+                    cm.world.transform.localPosition = Vector3.zero;
                 }
                 else if (typeof(T).Equals(typeof(CustomizableBelt)))
                 {
                     List<CustomizableBelt> currBelts = curr.OfType<CustomizableBelt>().ToList();
 
-                    float distance = i * CelestialBody.AU + 100.0f + this.star.Radius;
+                    float distance = i * Units.AU + 100.0f + this.star.Radius;
 
-                    Belt belt = Belt.Create(this.transform, this.transform.position, 100, distance, 200.0f, 5.0f, 15.0f, 15.0f, 0.0f, 100.0f, 0.1f, 0.5f,
-                        Singleton.Instance.asteroidPrefabs[0]);
+                    Belt belt = Belt.Create(this.transform, this.transform.position, 10, distance, 200.0f, 5.0f, 15.0f, 
+                        15.0f, 0.0f, 100.0f, 0.1f, 0.5f, Singleton.Instance.asteroidPrefabs[0]);
 
                     currBelts[i].belt = belt;
-
-                    currBelts[i].SetName("Belt");
-                    currBelts[i].SetPrefab(belt.asteroidPrefab);
                     currBelts[i].SetDensity(belt.density);
-                    currBelts[i].SetDistance(distance);
-                    currBelts[i].SetThickness(belt.outerRadius - belt.innerRadius);
+                    currBelts[i].SetDistance(distance, this.star);
                     currBelts[i].SetHeight(belt.height);
                     currBelts[i].SetIsClockwise(belt.rotatingClockwise);
                     currBelts[i].SetMinOrbitSpeed(belt.minOrbitSpeed);
                     currBelts[i].SetMaxOrbitSpeed(belt.maxOrbitSpeed);
                     currBelts[i].SetMinDiameter(belt.minDiameter);
                     currBelts[i].SetMaxDiameter(belt.maxDiameter);
+                    currBelts[i].SetName(belt.name);
+                    currBelts[i].SetPrefab(belt.asteroidPrefab);
+                    currBelts[i].SetThickness(belt.Thickness);
                 }
                 else if (typeof(T).Equals(typeof(CustomizableDwarfPlanet)))
                 {
                     List<CustomizableDwarfPlanet> currDwarfs = curr.OfType<CustomizableDwarfPlanet>().ToList();
 
                     string name = World.GeneratedName;
-                    float distance = i * CelestialBody.AU + 100.0f + this.star.Radius + (CelestialBody.AU * 0.5f);
-                    Vector3 orbitPos = this.star.transform.position + this.star.transform.forward * distance;
+                    float distance = i * Units.AU + 100.0f + (Units.AU * 0.5f);
+                    Vector3 orbitPos = this.star.transform.position + this.star.transform.forward * (distance + this.star.Radius);
 
-                    Orbit orbit = Orbit.Create(name, orbitPos, this.transform, this.star.transform, 10.0f, Vector3.up,
-                        this.isProgradeClockwise);
-                    DwarfPlanet dwarfPlanet = World.Create<DwarfPlanet>(name, orbit.transform, 1.0f, 0.0f, 10.0f, 2000.0f);
+                    Orbit orbit = Orbit.Create(name, orbitPos, this.transform, this.star.transform, 100.0f, Vector3.up,
+                        this.isProgradeClockwise, 0.0f);
+                    DwarfPlanet dwarfPlanet = World.Create<DwarfPlanet>(name, orbit.transform, 1.0f, 0.0f, 20.0f, 10.0f);
 
                     currDwarfs[i].orbit = orbit;
                     currDwarfs[i].world = dwarfPlanet;
 
                     currDwarfs[i].SetTilt(dwarfPlanet.axialTilt);
-                    currDwarfs[i].SetDayLength(dwarfPlanet.dayLength);
+                    currDwarfs[i].SetDayLength(dwarfPlanet.day);
                     currDwarfs[i].SetDiameter(dwarfPlanet.diameter);
                     currDwarfs[i].SetDistance(distance, this.star, this.star.transform.forward);
                     currDwarfs[i].SetHasAtmosphere(false);
+                    currDwarfs[i].SetInclination(orbit.inclination);
                     currDwarfs[i].SetMass(dwarfPlanet.mass);
                     currDwarfs[i].SetName(dwarfPlanet.name);
-                    currDwarfs[i].SetOrbitalPeriod(orbit.orbitalPeriod);
-                    currDwarfs[i].SetRing(false);
+                    currDwarfs[i].SetOrbitalPeriod(orbit.period);
                     currDwarfs[i].SetTemperature(dwarfPlanet.temperature);
-                    currDwarfs[i].SetInclination(orbit.tilt.x);
-                    currDwarfs[i].UpdateMoons(this);
+                    currDwarfs[i].SetRing(false);
 
-                    dwarfPlanet.transform.localPosition = Vector3.zero;
+                    currDwarfs[i].UpdateMoons(this);
+                    currDwarfs[i].world.transform.localPosition = Vector3.zero;
                 }
             }
         }
     }
 
-    void UpdateBoundary()
-    {
-        if (this.boundary == null || this.boundary.boundary == null)
-        {
-            Boundary boundary = Boundary.Create(this.transform, this.transform.position, 80000.0f, 2000.0f, Color.white);
-            this.boundary = new CustomizableBoundary(boundary, boundary.name, boundary.radius, boundary.particleSize, boundary.color);
-        }
-        else
-        {
-            this.boundary.SetDistance(this.boundary.distance);
-            this.boundary.SetSize(this.boundary.size);
-            this.boundary.SetColor(this.boundary.color);
-            this.boundary.SetName(this.boundary.name);
-        }
-    }
-
-    void UpdateCelestialBodies<T>(ref List<T> curr, ref List<T> prev)
+    void UpdateCelestialBodies<T>(ref List<T> curr, ref List<T> prev) where T : Customizable
     {
         try
         {
@@ -292,17 +403,20 @@ public class CustomizableStarSystem : StarSystem
             }
             else
             {
-                if (typeof(T).IsAssignableFrom(typeof(CustomizablePlanet)))
+                if (typeof(CustomizablePlanet).IsAssignableFrom(typeof(T)))
                 {
                     List<CustomizablePlanet> currPlanets = curr.OfType<CustomizablePlanet>().ToList();
 
                     foreach (CustomizablePlanet cp in currPlanets)
                     {
+                        cp.orbit.isClockwise = this.isProgradeClockwise;
+
                         cp.SetTilt(cp.axialTilt);
                         cp.SetDayLength(cp.dayLength);
                         cp.SetDiameter(cp.diameter);
                         cp.SetDistance(cp.distance, this.star, (cp.orbit.transform.position - this.star.transform.position).normalized);
                         cp.SetHasAtmosphere(cp.hasAtmosphere);
+                        cp.SetInclination(cp.inclination);
                         cp.SetMass(cp.mass);
                         cp.SetMat(cp.mat);
                         cp.SetName(cp.name);
@@ -321,7 +435,7 @@ public class CustomizableStarSystem : StarSystem
                         cb.SetName(cb.name);
                         cb.SetPrefab(cb.prefab);
                         cb.SetDensity(cb.density);
-                        cb.SetDistance(cb.distance);
+                        cb.SetDistance(cb.distance, this.star);
                         cb.SetThickness(cb.thickness);
                         cb.SetHeight(cb.height);
                         cb.SetIsClockwise(cb.isClockwise);
@@ -331,27 +445,6 @@ public class CustomizableStarSystem : StarSystem
                         cb.SetMaxDiameter(cb.maxDiameter);
 
                         cb.belt.ClearAndInitialize();
-                    }
-                }
-                else if (typeof(T).Equals(typeof(CustomizableDwarfPlanet)))
-                {
-                    List<CustomizableDwarfPlanet> currDwarfs = curr.OfType<CustomizableDwarfPlanet>().ToList();
-
-                    foreach (CustomizableDwarfPlanet cdp in currDwarfs)
-                    {
-                        cdp.SetTilt(cdp.axialTilt);
-                        cdp.SetDayLength(cdp.dayLength);
-                        cdp.SetDiameter(cdp.diameter);
-                        cdp.SetDistance(cdp.distance, this.star, (cdp.orbit.transform.position - this.star.transform.position).normalized);
-                        cdp.SetHasAtmosphere(cdp.hasAtmosphere);
-                        cdp.SetMass(cdp.mass);
-                        cdp.SetMat(cdp.mat);
-                        cdp.SetName(cdp.name);
-                        cdp.SetOrbitalPeriod(cdp.orbitalPeriod);
-                        cdp.SetRing(cdp.hasRing);
-                        cdp.SetTemperature(cdp.temperature);
-                        cdp.SetInclination(cdp.orbitInclination);
-                        cdp.UpdateMoons(this);
                     }
                 }
             }
@@ -380,7 +473,19 @@ public class CustomizableStarSystem : StarSystem
                         }
                     }
 
-                    currPlanets = newPlanets;
+                    curr = newPlanets.OfType<T>().ToList();
+                }
+                else if (typeof(T).Equals(typeof(CustomizableBelt)))
+                {
+                    List<CustomizableBelt> currBelts = curr.OfType<CustomizableBelt>().ToList();
+
+                    foreach (CustomizableBelt belt in currBelts)
+                    {
+                        if (belt.belt == null)
+                        {
+                            curr.Remove((T)(object)belt);
+                        }
+                    }
                 }
             }
         }
@@ -390,15 +495,42 @@ public class CustomizableStarSystem : StarSystem
 
     void UpdateStar()
     {
+        this.starStartTemperature = this.starTemperature;
+        this.starStartLuminosity = this.starLuminosity;
+        this.starEndTemperature = Random.Range(2000.0f, 5000.0f);
+        this.starEndLuminosity = Mathf.Pow(1.04f, this.star.diameter / 1000.0f);
+
         if (this.starMat != star.GetComponent<Renderer>().sharedMaterial)
             this.star.SetMat(this.starMat);
 
+        if (this.starDeathSize < this.star.diameter)
+            this.starDeathSize = this.star.diameter * 1.25f;
+
+        this.star.SetName(this.starName);
         this.star.SetDiameter(this.starSize);
-        this.star.SetColor(1000.0f, 5000.0f);
+        this.star.SetColor(this.starColor);
+        this.star.SetLuminosity(this.starLuminosity);
+        this.star.SetMass(this.starMass);
+        this.star.temperature = this.starTemperature;
         this.star.UpdateStar();
         this.star.growthSpeed = this.starGrowthSpeed;
         this.star.deathSize = this.starDeathSize;
+        this.star.type = this.starType;
         this.star.remnant = this.stellarRemnant;
+        this.star.UpdateOtherProperties();
+    }
+
+    public override void UpdateStarProperties()
+    {
+        this.star.SetMass(this.star.mass * (1 + this.star.growthSpeed * Time.deltaTime * Singleton.Instance.timeScale * 0.001f));
+        this.star.temperature = Mathf.Lerp(Mathf.Max(2000.0f, this.starStartTemperature), this.starEndTemperature, this.star.LifetimePercentage);
+
+        if (this.starStartLuminosity > this.starEndLuminosity)
+            this.star.SetLuminosity(Mathf.Lerp(this.starStartLuminosity, this.starEndLuminosity, this.star.LifetimePercentage));
+        else
+        {
+            this.star.SetLuminosity(this.star.luminosity - this.star.growthSpeed * Time.deltaTime * Singleton.Instance.timeScale * 0.005f);
+        }
     }
 
     protected override void UpdateSystem()
@@ -407,12 +539,14 @@ public class CustomizableStarSystem : StarSystem
         {
             this.UpdateStar();
             this.SetSystem();
+            this.SetSize();
         }
     }
 }
 
 public abstract class Customizable {
     public string name;
+    public float distance;
 
     public abstract void SetName(string name);
 
@@ -427,12 +561,12 @@ public abstract class CustomizableWorld : Customizable
     [Range(0.0f, 180.0f)] public float axialTilt;
     public float dayLength;
     public float diameter;
-    public float distance;
-    public float mass;
-    public float orbitalPeriod;
-    [Range(-273.0f, 20000.0f)] public float temperature;
     public bool hasAtmosphere = false;
+    public float inclination;
+    public float mass;
     public Material mat;
+    public float orbitalPeriod;
+    [Range(0f, 7000.0f)] public float temperature;
 
     [HideInInspector] public Orbit orbit;
     [HideInInspector] public World world;
@@ -440,8 +574,8 @@ public abstract class CustomizableWorld : Customizable
     public abstract void SetDiameter(float diameter);
     public abstract void SetDistance(float distance, CelestialBody parent, Vector3 direction);
 
-    public CustomizableWorld(Orbit orbit, World world, float axialTilt, float dayLength, float diameter, float distance, bool hasAtmosphere,
-        float mass, string name, float orbitalPeriod, float temperature, Material mat)
+    public CustomizableWorld(Orbit orbit, World world, float axialTilt, float dayLength, float diameter, float distance, 
+        bool hasAtmosphere, float inclination, float mass, string name, float orbitalPeriod, float temperature, Material mat)
     {
         this.orbit = orbit;
         this.world = world;
@@ -451,6 +585,7 @@ public abstract class CustomizableWorld : Customizable
         this.SetDiameter(diameter);
         this.distance = distance;
         this.SetHasAtmosphere(hasAtmosphere);
+        this.SetInclination(inclination);
         this.SetMass(mass);
         this.SetName(name);
         this.SetOrbitalPeriod(orbitalPeriod);
@@ -467,7 +602,7 @@ public abstract class CustomizableWorld : Customizable
     public void SetDayLength(float dayLength)
     {
         this.dayLength = dayLength;
-        this.world.dayLength = dayLength;
+        this.world.day = dayLength;
     }
 
     public void SetHasAtmosphere(bool hasAtmosphere)
@@ -476,7 +611,7 @@ public abstract class CustomizableWorld : Customizable
 
         if (hasAtmosphere && !this.world.atmosphere)
         {
-            this.world.AddAtmosphere(1.0f, Color.white);
+            this.world.AddAtmosphere(1.0f, Color.white, 0.3f);
         }
         else if (!hasAtmosphere && this.world.atmosphere)
         {
@@ -499,13 +634,20 @@ public abstract class CustomizableWorld : Customizable
     public override void SetName(string name)
     {
         this.name = name;
+        this.orbit.name = "Orbit of " + name;
         this.world.SetName(name);
+    }
+
+    public virtual void SetInclination(float inclination)
+    {
+        this.inclination = inclination;
+        this.orbit.SetInclination(inclination);
     }
 
     public void SetOrbitalPeriod(float orbitalPeriod)
     {
         this.orbitalPeriod = orbitalPeriod;
-        this.orbit.orbitalPeriod = orbitalPeriod;
+        this.orbit.period = orbitalPeriod;
     }
 
     public void SetTemperature(float temperature)
@@ -530,8 +672,8 @@ public class CustomizablePlanet : CustomizableWorld
     [HideInInspector] public List<CustomizableMoon> prevMoons = new List<CustomizableMoon>();
 
     public CustomizablePlanet(Orbit orbit, Planet planet, float axialTilt, float dayLength, float diameter, float distance, 
-        bool hasAtmosphere, float mass, string name, float orbitalPeriod, float temperature, Material mat, bool hasRing) : 
-        base (orbit, planet, axialTilt, dayLength, diameter, distance, hasAtmosphere, mass, name, orbitalPeriod, temperature, mat)
+        bool hasAtmosphere, float inclination, float mass, string name, float orbitalPeriod, float temperature, Material mat, bool hasRing) : 
+        base (orbit, planet, axialTilt, dayLength, diameter, distance, hasAtmosphere, inclination, mass, name, orbitalPeriod, temperature, mat)
     {
         this.SetRing(hasRing);
     }
@@ -547,10 +689,16 @@ public class CustomizablePlanet : CustomizableWorld
     public override void SetDistance(float distance, CelestialBody parent, Vector3 direction)
     {
         float clampedDistance = Mathf.Clamp(distance, 0.0f, 100000.0f);
-        Vector3 orbitPos = parent.transform.position + direction * clampedDistance;
+        Vector3 orbitPos = parent.transform.position + direction * (clampedDistance + parent.Radius);
 
         this.distance = clampedDistance;
         this.orbit.transform.position = orbitPos;
+    }
+
+    public override void SetInclination(float inclination)
+    {
+        this.inclination = 0;
+        this.orbit.SetInclination(0);
     }
 
     public void SetRing(bool hasRing)
@@ -573,12 +721,12 @@ public class CustomizablePlanet : CustomizableWorld
 
         foreach (CustomizableMoon moon in this.moons)
         {
-            Vector3 newOrbitPos = this.world.transform.position + this.world.transform.forward * (moon.distance);
+            Vector3 newOrbitPos = this.world.transform.position + this.world.transform.forward * (moon.distance + this.world.Radius);
 
             if (moon.orbit)
             {
                 moon.orbit.transform.position = newOrbitPos;
-                moon.orbit.tilt = this.world.transform.up;
+                moon.orbit.tiltAxis = this.world.transform.up;
             }
         }
     }
@@ -594,11 +742,15 @@ public class CustomizablePlanet : CustomizableWorld
         {
             foreach (CustomizableMoon cm in this.moons)
             {
+                cm.orbit.isClockwise = customizableStarSystem.isProgradeClockwise;
+
                 cm.SetTilt(cm.axialTilt);
                 cm.SetDayLength(cm.dayLength);
                 cm.SetDiameter(cm.diameter);
                 cm.SetDistance(cm.distance, cm.parent, (cm.orbit.transform.position - cm.parent.transform.position).normalized);
                 cm.SetHasAtmosphere(cm.hasAtmosphere);
+                cm.SetInclination(cm.inclination);
+                cm.SetIsTidallyLocked(cm.isTidallyLocked);
                 cm.SetMass(cm.mass);
                 cm.SetMat(cm.mat);
                 cm.SetName(cm.name);
@@ -622,14 +774,11 @@ public class CustomizablePlanet : CustomizableWorld
 [System.Serializable]
 public class CustomizableDwarfPlanet : CustomizablePlanet
 {
-    public float orbitInclination;
-
     public CustomizableDwarfPlanet(Orbit orbit, Planet planet, float axialTilt, float dayLength, float diameter, float distance, 
-        bool hasAtmosphere, float mass, string name, float orbitalPeriod, float temperature, Material mat, bool hasRing, 
-        float orbitInclination) : 
-        base(orbit, planet, axialTilt, dayLength, diameter, distance, hasAtmosphere, mass, name, orbitalPeriod, temperature, mat, hasRing)
+        bool hasAtmosphere,float inclination, float mass, string name, float orbitalPeriod, float temperature, Material mat, bool hasRing) : 
+        base(orbit, planet, axialTilt, dayLength, diameter, distance, hasAtmosphere, inclination, mass, name, orbitalPeriod, temperature, 
+            mat, hasRing)
     {
-        this.SetInclination(orbitInclination);
     }
 
     public override void SetDiameter(float diameter)
@@ -640,29 +789,33 @@ public class CustomizableDwarfPlanet : CustomizablePlanet
         this.world.SetDiameter(clampedDiameter);
     }
 
-    public void SetInclination(float orbitInclination)
+    public override void SetInclination(float inclination)
     {
-        this.orbitInclination = orbitInclination;
-        this.orbit.tilt = new Vector3(Mathf.InverseLerp(0.0f, 45.0f, orbitInclination), 1.0f, 0.0f);
+        this.inclination = inclination;
+        this.orbit.SetInclination(inclination);
     }
 }
 
 [System.Serializable]
 public class CustomizableMoon : CustomizableWorld
 {
+    public bool isTidallyLocked = true;
     [HideInInspector] public Planet parent;
 
-    public CustomizableMoon(Orbit orbit, World world, float axialTilt, float dayLength, float diameter, float distance, bool hasAtmosphere,
-        float mass, string name, float orbitalPeriod, float temperature, Material mat, Planet parent) : base(orbit, world, axialTilt, 
-            dayLength, diameter, distance, hasAtmosphere, mass, name, orbitalPeriod, temperature, mat)
+    public CustomizableMoon(Orbit orbit, World world, float axialTilt, float dayLength, float diameter, float distance, bool hasAtmosphere, 
+        float inclination, bool isTidallyLocked, float mass, string name, float orbitalPeriod, float temperature, Material mat, Planet parent) : 
+        base(orbit, world, axialTilt, dayLength, diameter, distance, hasAtmosphere, inclination, mass, name, orbitalPeriod, temperature, mat)
     {
         this.parent = parent;
+        this.SetIsTidallyLocked(isTidallyLocked);
     }
 
     public CustomizableMoon(CustomizableMoon other) : base(other.orbit, other.world, other.axialTilt, other.dayLength, other.diameter, 
-        other.distance, other.hasAtmosphere, other.mass, other.name, other.orbitalPeriod, other.temperature, other.mat)
+        other.distance, other.hasAtmosphere, other.inclination, other.mass, other.name, other.orbitalPeriod, 
+        other.temperature, other.mat)
     {
         this.parent = other.parent;
+        this.SetIsTidallyLocked(other.isTidallyLocked);
     }
 
     public override void SetDiameter(float diameter)
@@ -676,10 +829,16 @@ public class CustomizableMoon : CustomizableWorld
     public override void SetDistance(float distance, CelestialBody parent, Vector3 direction)
     {
         float clampedDistance = Mathf.Clamp(distance, 0.0f, 5000.0f);
-        Vector3 orbitPos = parent.transform.position + direction * clampedDistance;
+        Vector3 orbitPos = parent.transform.position + direction * (clampedDistance + parent.Radius);
 
         this.distance = clampedDistance;
         this.orbit.transform.position = orbitPos;
+    }
+
+    public void SetIsTidallyLocked(bool isTidallyLocked)
+    {
+        this.isTidallyLocked = isTidallyLocked;
+        ((Moon)this.world).isTidallyLocked = isTidallyLocked;
     }
 }
 
@@ -688,7 +847,6 @@ public class CustomizableBelt : Customizable
 {
     public GameObject prefab;
     [Range(10, 500)] public int density;
-    [Range(0.0f, 100000.0f)] public float distance;
     public float thickness;
     public float height;
     public bool isClockwise;
@@ -699,14 +857,15 @@ public class CustomizableBelt : Customizable
 
     [HideInInspector] public Belt belt;
 
-    public CustomizableBelt(Belt belt, string name, int density, float distance, float thickness, float height, bool isClockwise, 
+    public CustomizableBelt(Belt belt, string name, GameObject prefab, int density, float distance, float thickness, float height, bool isClockwise, 
         float minOrbitSpeed, float maxOrbitSpeed, float minDiameter, float maxDiameter)
     {
         this.belt = belt;
 
+        this.SetPrefab(prefab);
         this.SetName(name);
         this.SetDensity(density);
-        this.SetDistance(distance);
+        this.distance = distance;
         this.SetThickness(thickness);
         this.SetHeight(height);
         this.SetIsClockwise(isClockwise);
@@ -734,10 +893,10 @@ public class CustomizableBelt : Customizable
         this.belt.density = density;
     }
 
-    public void SetDistance(float distance)
+    public void SetDistance(float distance, Star star)
     {
         this.distance = distance;
-        this.belt.innerRadius = distance;
+        this.belt.innerRadius = distance + star.Radius;
     }
 
     public void SetThickness(float thickness)
@@ -780,49 +939,5 @@ public class CustomizableBelt : Customizable
     {
         this.maxDiameter = maxDiameter;
         this.belt.maxDiameter = maxDiameter;
-    }
-}
-
-[System.Serializable]
-public class CustomizableBoundary : Customizable
-{
-    [Range(100.0f, 100000.0f)] public float distance;
-    public float size;
-    public Color color;
-
-    [HideInInspector] public Boundary boundary;
-
-    public CustomizableBoundary(Boundary boundary, string name, float distance, float size, Color color)
-    {
-        this.boundary = boundary;
-
-        this.SetName(name);
-        this.SetDistance(distance);
-        this.SetSize(size);
-        this.SetColor(color);
-    }
-
-    public override void SetName(string name)
-    {
-        this.name = name;
-        this.boundary.gameObject.name = name;
-    }
-
-    public void SetDistance(float distance)
-    {
-        this.distance = distance;
-        this.boundary.SetRadius(distance);
-    }
-
-    public void SetSize(float size)
-    {
-        this.size = size;
-        this.boundary.SetSize(size);
-    }
-
-    public void SetColor(Color color)
-    {
-        this.color = color;
-        this.boundary.SetColor(color);
     }
 }

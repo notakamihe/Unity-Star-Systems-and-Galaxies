@@ -7,10 +7,10 @@ using UnityEngine;
 
 public class Pulsar : MonoBehaviour
 {
-    public float rotationSpeed = 1000.0f;
+    public float rotationSpeed = 100.0f;
 
     private void Update()
     {
-        this.transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime);
+        this.transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime * Singleton.Instance.timeScale);
     }
 }

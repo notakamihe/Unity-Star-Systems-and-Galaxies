@@ -2,9 +2,9 @@
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class NeutronStar : Exotic
+public class NeutronStar : CompactStar
 {
-    public float rotationSpeed = 7000000.0f;
+    public float rotationSpeed = 0.1f * Units.SPEED_OF_LIGHT;
 
     Behaviour halo;
 
@@ -15,7 +15,7 @@ public class NeutronStar : Exotic
         this.rb.isKinematic = true;
     }
 
-    public static NeutronStarVFX Create(Transform parent, Vector3 position, float diameter, float mass, float rotationSpeed)
+    public static void Create(Transform parent, Vector3 position, float diameter, float mass, float rotationSpeed)
     {
         GameObject obj = new GameObject("Neutron Star");
         obj.transform.parent = parent;
@@ -30,7 +30,7 @@ public class NeutronStar : Exotic
         neutronStar.SetDiameter(diameter);
         neutronStar.SetMass(mass);
         neutronStar.SetMat(Singleton.Instance.neutronStarMat);
-        neutronStar.temperature = Random.Range(1000000.0f, 1000000000000.0f);
+        neutronStar.temperature = Utils.NextFloat(600000.0f, 1000000.0f);
         neutronStar.halo = neutronStar.CreateHalo(neutronStar.diameter + 1.0f, new Color(0.666f, 1.0f, 1.0f));
         neutronStar.rotationSpeed = rotationSpeed;
 
@@ -38,15 +38,13 @@ public class NeutronStar : Exotic
         NeutronStarVFX vfx = vfxObj.GetComponent<NeutronStarVFX>();
 
         vfx.SetBeams(diameter * 0.1f);
-
-        return null;
     }
 
     private void Update()
     {
         if (Application.isPlaying)
         {
-            this.transform.Rotate(Vector3.up * this.rotationSpeed * Time.deltaTime);
+            this.transform.Rotate(Vector3.up * this.rotationSpeed * Time.deltaTime * Singleton.Instance.timeScale);
         }
     }
 }

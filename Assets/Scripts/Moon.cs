@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class Moon : World
 {
+    public bool isTidallyLocked = true;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -15,5 +17,21 @@ public class Moon : World
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
+    }
+
+    protected override void Spin()
+    {
+        if (this.isTidallyLocked)
+        {
+            Orbit orbit = this.GetComponentInParent<Orbit>();
+
+            if (orbit)
+            {
+                this.SetTilt(this.axialTilt);
+                this.transform.rotation = Quaternion.LookRotation(this.transform.position - orbit.parent.position);
+            }
+        }
+        else
+            base.Spin();
     }
 }

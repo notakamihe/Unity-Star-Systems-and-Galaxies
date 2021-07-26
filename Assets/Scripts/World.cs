@@ -1,22 +1,13 @@
 ﻿using UnityEngine;
 
 
-public class World : CelestialBody
+public class World : CelestialBody, Attractor
 {
-    public float dayLength = 1.0f;
+    public float day = 100.0f;
     public float axialTilt = 0.0f;
 
     [HideInInspector] public Atmosphere atmosphere;
 
-    public float Gravity
-    {
-        get
-        {
-            float gravitationalFieldStrength = (G * this.mass) / Mathf.Pow(this.diameter * 0.5f, 2);
-            return gravitationalFieldStrength * Mathf.Pow(1.25f, this.mass / 1000.0f - 20.0f) * 0.5f;
-        }
-    }
-    
     public static string GeneratedName
     {
         get
@@ -29,7 +20,7 @@ public class World : CelestialBody
     {
         get
         {
-            return 0.0f <= this.temperature && this.temperature <= 100.0f;
+            return 273.15f <= this.temperature && this.temperature <= 373.15f && this.diameter < 30.0f && atmosphere?.thickness > 0.15f;
         }
     }
 
@@ -46,7 +37,11 @@ public class World : CelestialBody
 
     protected override void FixedUpdate()
     {
-        transform.Rotate(0, -dayLength, 0);
+        base.FixedUpdate();
+        this.Spin();
+
+        if (SpaceProbe.probe)
+            this.Pull(SpaceProbe.probe.gameObject);
     }
     
     public static T Create<T>(string name, Transform parent, float diameter, float axialTilt, float dayLength, float mass) where T : World
@@ -59,18 +54,39 @@ public class World : CelestialBody
         world.SetDiameter(diameter);
         world.SetTilt(axialTilt);
         world.SetMass(mass);
-        world.dayLength = dayLength;
+        world.day = dayLength;
 
         return world;
     }
 
-    public Atmosphere AddAtmosphere(float thickness, Color color)
+    public Atmosphere AddAtmosphere(float thickness, Color color, float ambience)
     {
         this.atmosphere = this.gameObject.AddComponent<Atmosphere>();
-        this.atmosphere.SetThiccness(thickness);
+        this.atmosphere.SetThickness(thickness);
         this.atmosphere.SetColor(color);
+        this.atmosphere.SetAmbience(ambience);
 
         return atmosphere;
+    }
+
+    public void Pull(GameObject other)
+    {
+        Rigidbody otherRb = other.GetComponent<Rigidbody>();
+
+        Vector3 direction = this.transform.position - other.transform.position;
+        float distance = Mathf.Max(0.0f, this.DistanceFromSurface(other.transform.position));
+        float forceMagnitude = Mathf.Min(((Units.G * rb.mass * otherRb.mass) / Mathf.Pow(distance, 5) / otherRb.mass) * 0.75f, 50.0f);
+        Vector3 force = direction.normalized * forceMagnitude * Mathf.InverseLerp(-50.0f, 0.0f, -forceMagnitude);
+
+        Universe.Move(-force);
+    }
+
+    protected virtual void Spin()
+    {
+        if (!float.IsNaN(0.0f / this.day))
+        {
+            transform.Rotate(Vector3.up * -(73500.0f / this.day) * Time.deltaTime * Singleton.Instance.timeScale);
+        }
     }
 
     public void RemoveAtmosphere()
@@ -88,8 +104,6 @@ public class World : CelestialBody
     public void SetTilt(float axialTilt)
     {
         this.axialTilt = axialTilt;
-
-        Vector3 newTilt = new Vector3(axialTilt, 0, 0);
-        transform.localEulerAngles = newTilt;
+        this.transform.localEulerAngles = Vector3.right * axialTilt;
     }
 }

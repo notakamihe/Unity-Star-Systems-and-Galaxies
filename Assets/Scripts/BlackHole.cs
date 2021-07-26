@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class BlackHole : Exotic
+public class BlackHole : CompactStar, Attractor
 {
-    public float rotationSpeed = 0.75f * CelestialBody.SPEED_OF_LIGHT;
+    public float rotationSpeed = 0.75f * Units.SPEED_OF_LIGHT;
 
     Behaviour halo;
 
@@ -25,6 +25,7 @@ public class BlackHole : Exotic
         GameObject singularityObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         singularityObj.transform.parent = obj.transform;
         singularityObj.transform.localPosition = Vector3.zero;
+        singularityObj.GetComponent<SphereCollider>().isTrigger = true;
 
         BlackHole blackHole = singularityObj.AddComponent<BlackHole>();
         blackHole.SetName("Singularity");
@@ -33,13 +34,13 @@ public class BlackHole : Exotic
         blackHole.SetMat(Singleton.Instance.blackHoleMat);
         blackHole.temperature = 0.00000006f;
         blackHole.rotationSpeed = rotationSpeed;
-        blackHole.halo = blackHole.CreateHalo(blackHole.diameter + 1.0f, Color.white);
+        blackHole.halo = blackHole.CreateHalo(blackHole.diameter * 1.5f, Color.white);
 
         GameObject vfxObj = Instantiate(Singleton.Instance.blackHoleVFX, obj.transform.position, Quaternion.identity, obj.transform);
         BlackHoleVFX vfx = vfxObj.GetComponent<BlackHoleVFX>();
 
-        vfx.SetAccretionDisk(diameter * 0.05f);
-        vfx.SetJets(diameter * 0.05f);
+        vfx.SetAccretionDisk(diameter * 2.0f);
+        vfx.SetJets(diameter * 2.0f);
 
         obj.transform.eulerAngles = new Vector3(Random.Range(-65.0f, 65.0f), 0.0f, Random.Range(-65.0f, 65.0f));
 
@@ -50,7 +51,30 @@ public class BlackHole : Exotic
     {
         if (Application.isPlaying)
         {
-            this.transform.Rotate(Vector3.up * this.rotationSpeed * Time.deltaTime);
+            this.transform.Rotate(Vector3.up * this.rotationSpeed * Time.deltaTime * Singleton.Instance.timeScale);
+
+            if (SpaceProbe.probe)
+                this.Pull(SpaceProbe.probe.gameObject); 
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject == SpaceProbe.probe.gameObject)
+        {
+            Utils.Destroy(this, SpaceProbe.probe.gameObject);
+        }
+    }
+
+    public void Pull(GameObject other)
+    {
+        Rigidbody otherRb = other.GetComponent<Rigidbody>();
+
+        Vector3 direction = this.transform.position - other.transform.position;
+        float distance = Mathf.Max(0.0f, this.DistanceFromSurface(other.transform.position));
+        float forceMagnitude = Mathf.Min((Units.G * rb.mass * otherRb.mass) / Mathf.Pow(distance, 3) / otherRb.mass, 1000.0f);
+        Vector3 force = direction.normalized * forceMagnitude;
+
+        Universe.Move(-force);
     }
 }

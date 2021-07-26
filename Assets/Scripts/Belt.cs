@@ -48,6 +48,13 @@ public class Belt : MonoBehaviour
         if (initializeOnAwake)
             Initialize();
     }
+   
+    private void OnDrawGizmos()
+    {
+        Handles.color = new Color(1.0f, 1.0f, 1.0f, 0.05f);
+        Handles.DrawWireDisc(this.transform.position, Vector3.up, this.innerRadius);
+        Handles.DrawWireDisc(this.transform.position, Vector3.up, this.outerRadius);
+    }
 
     public static Belt Create(Transform parent, Vector3 position, int density, float innerRadius, float thickness, float minOrbitSpeed,
         float maxOrbitSpeed, float height, float minRotationSpeed, float maxRotationSpeed, float minDiameter, float maxDiameter, 
@@ -115,10 +122,9 @@ public class Belt : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
+    public bool Contains(Vector3 position)
     {
-        Handles.color = Color.white;
-        Handles.DrawWireDisc(this.transform.position, Vector3.up, this.innerRadius);
-        Handles.DrawWireDisc(this.transform.position, Vector3.up, this.outerRadius);
+        float distanceFromCenter = Vector3.Distance(this.transform.position, position);
+        return this.innerRadius <= distanceFromCenter && distanceFromCenter <= this.outerRadius;
     }
 }

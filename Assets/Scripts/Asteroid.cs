@@ -23,6 +23,8 @@ public class Asteroid : CelestialBody
         this.isClockwise = isClockwise;
         this.rotationDirection = rotationDirection = new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360));
 
+        this.mass = Random.Range(0.000001f, 5.0f);
+
         this.SetDiameter(diameter);
     }
 
@@ -30,13 +32,13 @@ public class Asteroid : CelestialBody
     {
         if (isClockwise)
         {
-            transform.RotateAround(parent.position, parent.transform.up, orbitSpeed * Time.deltaTime);
+            transform.RotateAround(parent.position, parent.transform.up, orbitSpeed * Time.deltaTime * Singleton.Instance.timeScale);
         }
         else
         {
-            transform.RotateAround(parent.position, -parent.transform.up, orbitSpeed * Time.deltaTime);
+            transform.RotateAround(parent.position, -parent.transform.up, orbitSpeed * Time.deltaTime * Singleton.Instance.timeScale);
         }
 
-        transform.Rotate(rotationDirection, rotationSpeed * Time.deltaTime);
+        transform.Rotate(rotationDirection, rotationSpeed * Time.deltaTime * Singleton.Instance.timeScale);
     }
 }

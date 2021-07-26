@@ -13,7 +13,7 @@ public class NeutronStarVFX : MonoBehaviour
     {
         foreach (ParticleSystem beam in beams)
         {
-            beam.transform.localScale = new Vector3(1.0f, 5.0f, 1.0f) * size;
+            beam.transform.localScale = Vector3.one * size;
         }
     }
 }
