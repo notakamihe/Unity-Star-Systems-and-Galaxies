@@ -16,11 +16,13 @@ public class RandomStarSystem : StarSystem
     [HideInInspector] public List<DwarfPlanet> dwarfPlanets = new List<DwarfPlanet>();
 
     float starStartTemperature;
-    float starStartLuminoisty;
+    float starStartLuminosity;
     float starStartMass;
     float starEndTemperature = Utils.NextFloat(2000.0f, 4000.0f);
     float starEndLuminosity;
     float starEndMass;
+
+    float farthestDistance = 100000.0f;
 
     protected override void OnEnable()
     {
@@ -32,6 +34,7 @@ public class RandomStarSystem : StarSystem
         this.Clear();
         this.star = this.CreateStar();
         this.UpdateSystem();
+        this.SetSize();
     }
 
     Atmosphere AddAtmosphere(World world, float distance)
@@ -44,7 +47,7 @@ public class RandomStarSystem : StarSystem
         
         Atmosphere atmosphere = world.AddAtmosphere(thickness, atmosphereColor, Utils.NextFloat(0.1f, 1.0f));
 
-        world.temperature += Mathf.Pow(1.95f, thickness * 10.0f);
+        world.temperature += Mathf.Max(Mathf.Pow(1.95f, thickness * 10.0f) * 0.25f, 100.0f);
 
         if (world.TryGetComponent(out Planet planet))
             this.SetPlanetTexture(planet);
@@ -130,6 +133,7 @@ public class RandomStarSystem : StarSystem
 
     public Star CreateStar()
     {
+        string name = Star.GeneratedName;
         float diameter;
         StarType type;
         Color color;
@@ -244,12 +248,13 @@ public class RandomStarSystem : StarSystem
             this.starEndMass = Utils.NextFloat(0.3f, 8.0f) * Units.SOLAR_MASS;
         }
 
-        Star star = Star.Create(Star.GeneratedName, this, Singleton.Instance.starMat, diameter, mass, temperature, luminosity, color, 
+        Star star = Star.Create(name, this, Singleton.Instance.starMat, diameter, mass, temperature, luminosity, color, 
             growthSpeed, deathSize, type, remnant);
         star.transform.localPosition = Vector3.zero;
+        this.name = name + " System";
 
         this.starStartTemperature = temperature;
-        this.starStartLuminoisty = luminosity;
+        this.starStartLuminosity = luminosity;
         this.starStartMass = mass;
 
         return star;
@@ -328,20 +333,34 @@ public class RandomStarSystem : StarSystem
         }
     }
 
+    void SetPlanetTexture(Planet planet)
+    {
+        if (planet.diameter > 30.0f)
+        {
+            planet.SetMat(Utils.RandomChoose(Singleton.Instance.gasGiantMats));
+        }
+        else
+        {
+            if (planet.IsHabitable)
+            {
+                planet.SetMat(Utils.RandomChoose(Singleton.Instance.terrestrialMats.habitable));
+            }
+            else if (planet.temperature > 373.15f)
+            {
+                planet.SetMat(Utils.RandomChoose(Singleton.Instance.terrestrialMats.hot));
+            }
+            else
+            {
+                planet.SetMat(Utils.RandomChoose(Singleton.Instance.terrestrialMats.cold));
+            }
+        }
+    }
+
     protected override void SetSize()
     {
-        float newSize = this.star.diameter;
-        float farthestPlanetDistance = this.planets.Select(p => this.star.DistanceFromSurface(p.transform.position))
-            .Where(d => d > newSize).OrderByDescending(d => d).FirstOrDefault();
-        float farthestBeltDistance = this.belts.Select(b => b.outerRadius).Where(d => d > newSize).OrderByDescending(d => d).FirstOrDefault();
-        float farthestDwarfDistance = this.dwarfPlanets.Select(dp => this.star.DistanceFromSurface(dp.transform.position))
-            .Where(d => d > newSize).OrderByDescending(d => d).FirstOrDefault();
-
-        float farthestDistance = Mathf.Max(newSize, farthestPlanetDistance, farthestBeltDistance, farthestDwarfDistance);
-
         if (this.collider)
         {
-            this.size = farthestDistance * 1.25f + this.star.Radius;
+            this.size = this.star.Radius + this.farthestDistance * 1.25f;
             this.collider.radius = this.size;
         }
     }
@@ -401,19 +420,22 @@ public class RandomStarSystem : StarSystem
             }
 
             this.CreateMoons(planet, distance, moonDistanceScale);
+            this.farthestDistance = distance;
 
             if (Utils.random.Next(1, 13) == 1 && this.belts.Count < 2)
             {
                 float thickness = i >= numPlanets / 4 * 3 ? Utils.NextFloat(3.0f, 30.0f) * Units.AU : Random.Range(100.0f, 5000.0f);
                 float minOrbitSpeed = orbitalPeriod * 0.1f, maxOrbitSpeed = orbitalPeriod * 1.5f;
+                float beltDistance = distance * 1.1f;
                 GameObject prefab = Utils.RandomChoose(Singleton.Instance.asteroidPrefabs);
 
                 Belt belt = Belt.Create(this.transform, this.transform.position, Random.Range(100, 200),
-                    (this.star.Radius + distance * 1.1f), thickness, minOrbitSpeed, maxOrbitSpeed, Random.Range(5.0f, 50.0f), 0.01f, 50.0f,
+                    (this.star.Radius + beltDistance), thickness, minOrbitSpeed, maxOrbitSpeed, Random.Range(5.0f, 50.0f), 0.01f, 50.0f,
                     0.1f, 1.0f, prefab);
 
                 beltOffset += thickness * 1.1f;
                 this.belts.Add(belt);
+                this.farthestDistance = beltDistance;
 
                 int numDwarfPlanets = Utils.random.Next(0, 7);
                 float minDistance = belt.innerRadius;
@@ -449,11 +471,11 @@ public class RandomStarSystem : StarSystem
                     this.SetPlanetTexture(dp);
                     this.CreateMoons(dp, dpDistance, 0.075f);
                     this.AddAtmosphere(dp, dpDistance);
+
+                    this.farthestDistance = dpDistance;
                 }
             }
         }
-
-        this.SetSize();
     }
 
     void SetWorldTemperature(World world, float distance)
@@ -465,30 +487,8 @@ public class RandomStarSystem : StarSystem
         else
             world.temperature = Mathf.Pow(0.92f, distance / Units.AU - 64.0f) + 30.0f;
 
-        world.temperature += -Mathf.Pow(1.18f, -this.star.temperature / 1000.0f + 30.5f) + 150.0f;
-    }
-
-    void SetPlanetTexture(Planet planet)
-    {
-        if (planet.diameter > 30.0f)
-        {
-            planet.SetMat(Utils.RandomChoose(Singleton.Instance.gasGiantMats));
-        }
-        else
-        {
-            if (planet.IsHabitable)
-            {
-                planet.SetMat(Utils.RandomChoose(Singleton.Instance.terrestrialMats.habitable));
-            }
-            else if (planet.temperature > 373.15f)
-            {
-                planet.SetMat(Utils.RandomChoose(Singleton.Instance.terrestrialMats.hot));
-            }
-            else
-            {
-                planet.SetMat(Utils.RandomChoose(Singleton.Instance.terrestrialMats.cold));
-            }
-        }
+        float temperatureMutiplierByStarSize = Mathf.Pow(1.01f, this.star.diameter / 1000.0f - 50.0f) + 0.3f;
+        world.temperature += (-Mathf.Pow(1.18f, -this.star.temperature / 1000.0f + 30.5f) + 150.0f) * temperatureMutiplierByStarSize;
     }
 
     protected override void UpdateSystem()
@@ -501,8 +501,8 @@ public class RandomStarSystem : StarSystem
         if (this.starStartTemperature > this.starEndTemperature)
             this.star.temperature = Mathf.Lerp(this.starStartTemperature, this.starEndTemperature, this.star.LifetimePercentage);
 
-        if (this.starStartLuminoisty <= this.starEndLuminosity)
-            this.star.luminosity = Mathf.Lerp(this.starStartLuminoisty, this.starEndLuminosity, this.star.LifetimePercentage);
+        if (this.starStartLuminosity <= this.starEndLuminosity)
+            this.star.luminosity = Mathf.Lerp(this.starStartLuminosity, this.starEndLuminosity, this.star.LifetimePercentage);
 
         this.star.mass = Mathf.Lerp(this.starStartMass, this.starEndMass, this.star.LifetimePercentage);
 

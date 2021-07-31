@@ -12,15 +12,20 @@ public class CustomizableStarSystem : StarSystem
     [Range(0.0f, 50.0f)] public float starGrowthSpeed = 5.0f;
     public bool isProgradeClockwise = false;
     public Material starMat;
-    public string starName = "My Star System";
+    public string starName = "My Star";
     public Color starColor = Color.yellow;
     [Range(1.0f, 200.0f)] public float starLuminosity = 1.0f;
     public float starMass = 100000000.0f;
     [Range(2000.0f, 40000.0f)] public float starTemperature = 5000.0f;
-    public float starDeathSize = 10000.0f;
     public StarType starType;
     public Remnant stellarRemnant;
+    
+    public float starDeathSize = 10000.0f;
+    public float starDeathTemperature = 4000.0f;
+    public float starDeathLuminosity = 100.0f * Units.SOLAR_LUMINOSITY;
+    public float starDeathMass = 1.0f * Units.SOLAR_MASS;
 
+    [Space(10)]
     public List<CustomizablePlanet> planets = new List<CustomizablePlanet>();
     public List<CustomizableBelt> belts = new List<CustomizableBelt>();
     public List<CustomizableDwarfPlanet> dwarfPlanets = new List<CustomizableDwarfPlanet>();
@@ -31,11 +36,6 @@ public class CustomizableStarSystem : StarSystem
 
     bool initialized = false;
     bool probeEntered = false;
-
-    float starStartTemperature;
-    float starEndTemperature;
-    float starStartLuminosity;
-    float starEndLuminosity;
 
     private void Start()
     {
@@ -495,11 +495,6 @@ public class CustomizableStarSystem : StarSystem
 
     void UpdateStar()
     {
-        this.starStartTemperature = this.starTemperature;
-        this.starStartLuminosity = this.starLuminosity;
-        this.starEndTemperature = Random.Range(2000.0f, 5000.0f);
-        this.starEndLuminosity = Mathf.Pow(1.04f, this.star.diameter / 1000.0f);
-
         if (this.starMat != star.GetComponent<Renderer>().sharedMaterial)
             this.star.SetMat(this.starMat);
 
@@ -522,15 +517,12 @@ public class CustomizableStarSystem : StarSystem
 
     public override void UpdateStarProperties()
     {
-        this.star.SetMass(this.star.mass * (1 + this.star.growthSpeed * Time.deltaTime * Singleton.Instance.timeScale * 0.001f));
-        this.star.temperature = Mathf.Lerp(Mathf.Max(2000.0f, this.starStartTemperature), this.starEndTemperature, this.star.LifetimePercentage);
+        this.star.temperature = Mathf.Lerp(this.starTemperature, this.starDeathTemperature, this.star.LifetimePercentage);
+        this.star.luminosity = Mathf.Lerp(this.starLuminosity, this.starDeathLuminosity, this.star.LifetimePercentage);
+        this.star.mass = Mathf.Lerp(this.starMass, this.starDeathMass, this.star.LifetimePercentage);
 
-        if (this.starStartLuminosity > this.starEndLuminosity)
-            this.star.SetLuminosity(Mathf.Lerp(this.starStartLuminosity, this.starEndLuminosity, this.star.LifetimePercentage));
-        else
-        {
-            this.star.SetLuminosity(this.star.luminosity - this.star.growthSpeed * Time.deltaTime * Singleton.Instance.timeScale * 0.005f);
-        }
+        if (this.star.LifetimePercentage >= 0.8f && (this.star.type != StarType.RedSupergiant && this.star.type != StarType.Giant))
+            this.star.type = this.star.IsMassive ? StarType.RedSupergiant : StarType.Giant;
     }
 
     protected override void UpdateSystem()
@@ -666,8 +658,8 @@ public abstract class CustomizableWorld : Customizable
 [System.Serializable]
 public class CustomizablePlanet : CustomizableWorld
 {
-    public List<CustomizableMoon> moons = new List<CustomizableMoon>();
     public bool hasRing;
+    public List<CustomizableMoon> moons = new List<CustomizableMoon>();
 
     [HideInInspector] public List<CustomizableMoon> prevMoons = new List<CustomizableMoon>();
 

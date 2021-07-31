@@ -15,7 +15,7 @@ public class SpaceProbeCamera : MonoBehaviour
 
     [SerializeField] Transform cursor;
     [HideInInspector] public new Camera camera;
-    public SpaceProbeUI ui;
+    [HideInInspector] public SpaceProbeUI ui;
 
     private void Awake()
     {
@@ -26,8 +26,8 @@ public class SpaceProbeCamera : MonoBehaviour
 
     private void Update()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * camera.fieldOfView * (this.mouseSensitivity / 30.0f) * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * camera.fieldOfView * (this.mouseSensitivity / 30.0f) * Time.deltaTime;
         float scrollY = Input.mouseScrollDelta.y * zoomSpeed * Time.deltaTime;
 
         transform.parent.Rotate(Vector3.up * mouseX + Vector3.right * -mouseY);

@@ -56,7 +56,7 @@ public class Star : CelestialBody
     {
         get
         {
-            return this.diameter >= 50000.0f && this.type != StarType.Giant;
+            return this.type >= StarType.BMainSequence && this.type != StarType.Giant;
         }
     }
 

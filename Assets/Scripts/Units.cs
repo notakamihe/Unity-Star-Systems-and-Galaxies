@@ -45,11 +45,11 @@ public static class Units {
     {
         if (mass >= JUPITER_MASS)
         {
-            return ToJupiterMass(mass).ToString("0.#") + " M♃";
+            return ToJupiterMass(mass).ToString("0.####") + " M♃";
         }
         else
         {
-            return ToEarthMass(mass).ToString("0.#") + " M⊕";
+            return ToEarthMass(mass).ToString("0.####") + " M⊕";
         }
     }
 
