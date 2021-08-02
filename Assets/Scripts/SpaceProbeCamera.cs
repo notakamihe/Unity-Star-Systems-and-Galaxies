@@ -33,7 +33,8 @@ public class SpaceProbeCamera : MonoBehaviour
         transform.parent.Rotate(Vector3.up * mouseX + Vector3.right * -mouseY);
         camera.fieldOfView = Mathf.Clamp(camera.fieldOfView - scrollY, 9.0f, 60.0f);
 
-        if (Physics.Raycast(this.camera.ScreenPointToRay(this.cursor.position), out RaycastHit hit, Mathf.Infinity))
+        if (Physics.Raycast(this.camera.ScreenPointToRay(this.cursor.position), out RaycastHit hit, Mathf.Infinity, ~LayerMask.GetMask("Probe"),
+            QueryTriggerInteraction.UseGlobal))
         {
             this.isLookingAtSomething = true;
 

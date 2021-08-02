@@ -169,11 +169,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: My Galaxy
   shape: 0
-  diameterInKPC: 100
+  diameterInKPC: 25
   centerDiameterPercentage: 0.2
-  numArms: 2
+  numArms: 5
   color: {r: 1, g: 0.7216981, b: 0.7216981, a: 1}
-  numStars: 25
+  numStars: 100
 --- !u!135 &1009387990
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -284,7 +284,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1446680840551429053, guid: a784d211ff6b28543a22781c567fd8c8, type: 3}
       propertyPath: timeScale
-      value: 0.00001
+      value: 0.000001
       objectReference: {fileID: 0}
     - target: {fileID: 1446680840551429054, guid: a784d211ff6b28543a22781c567fd8c8, type: 3}
       propertyPath: m_Name

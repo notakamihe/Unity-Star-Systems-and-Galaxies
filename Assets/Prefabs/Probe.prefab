@@ -601,7 +601,8 @@ GameObject:
   - component: {fileID: 8132490737688433157}
   - component: {fileID: 8132490737688433156}
   - component: {fileID: 1497161748704452701}
-  m_Layer: 0
+  - component: {fileID: 380698152}
+  m_Layer: 6
   m_Name: Probe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -672,6 +673,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!135 &380698152
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497161748704452702}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7034328236496091908
 GameObject:
   m_ObjectHideFlags: 0
@@ -683,7 +697,7 @@ GameObject:
   - component: {fileID: 5037978239918067247}
   - component: {fileID: 5105987447786790403}
   - component: {fileID: 7126665227462421889}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MovementAdjuster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -715,7 +729,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 5000
+  m_Radius: 500
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7126665227462421889
 MonoBehaviour:
