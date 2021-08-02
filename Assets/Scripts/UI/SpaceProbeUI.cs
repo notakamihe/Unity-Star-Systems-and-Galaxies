@@ -10,6 +10,8 @@ public class SpaceProbeUI : MonoBehaviour
 {
     public Text precedingPlanet;
     public Text succeedingPlanet;
+    public Image galaticSpeedProgressBar;
+    public Text nearestStar;
 
     public StarUI starUI;
     public PlanetUI planetUI;
@@ -19,100 +21,38 @@ public class SpaceProbeUI : MonoBehaviour
     public WhiteDwarfUI whiteDwarfUI;
     public NeutronStarUI neutronStarUI;
     public BlackHoleUI blackHoleUI;
+    public GalaxyUI galaxyUI;
 
     public void SetUI(UI ui)
     {
+        this.starUI.parent.SetActive(false);
+        this.planetUI.parent.SetActive(false);
+        this.moonUI.parent.SetActive(false);
+        this.starSystemUI.parent.SetActive(false);
+        this.beltUI.parent.SetActive(false);
+        this.whiteDwarfUI.parent.SetActive(false);
+        this.neutronStarUI.parent.SetActive(false);
+        this.blackHoleUI.parent.SetActive(false);
+        this.galaxyUI.parent.SetActive(false);
+
         if (ui == this.starUI)
-        {
             this.starUI.parent.SetActive(true);
-            this.planetUI.parent.SetActive(false);
-            this.moonUI.parent.SetActive(false);
-            this.starSystemUI.parent.SetActive(false);
-            this.beltUI.parent.SetActive(false);
-            this.whiteDwarfUI.parent.SetActive(false);
-            this.neutronStarUI.parent.SetActive(false);
-            this.blackHoleUI.parent.SetActive(false);
-        }
         else if (ui == this.planetUI)
-        {
-            this.starUI.parent.SetActive(false);
             this.planetUI.parent.SetActive(true);
-            this.moonUI.parent.SetActive(false);
-            this.starSystemUI.parent.SetActive(false);
-            this.beltUI.parent.SetActive(false);
-            this.whiteDwarfUI.parent.SetActive(false);
-            this.neutronStarUI.parent.SetActive(false);
-            this.blackHoleUI.parent.SetActive(false);
-        }
         else if (ui == this.moonUI)
-        {
-            this.starUI.parent.SetActive(false);
-            this.planetUI.parent.SetActive(false);
             this.moonUI.parent.SetActive(true);
-            this.starSystemUI.parent.SetActive(false);
-            this.beltUI.parent.SetActive(false);
-            this.whiteDwarfUI.parent.SetActive(false);
-            this.neutronStarUI.parent.SetActive(false);
-            this.blackHoleUI.parent.SetActive(false);
-        }
         else if (ui == this.starSystemUI)
-        {
-            this.starUI.parent.SetActive(false);
-            this.planetUI.parent.SetActive(false);
-            this.moonUI.parent.SetActive(false);
             this.starSystemUI.parent.SetActive(true);
-            this.beltUI.parent.SetActive(false);
-            this.whiteDwarfUI.parent.SetActive(false);
-            this.blackHoleUI.parent.SetActive(false);
-        }
         else if (ui == this.whiteDwarfUI)
-        {
-            this.starUI.parent.SetActive(false);
-            this.planetUI.parent.SetActive(false);
-            this.moonUI.parent.SetActive(false);
-            this.starSystemUI.parent.SetActive(false);
-            this.beltUI.parent.SetActive(false);
             this.whiteDwarfUI.parent.SetActive(true);
-            this.neutronStarUI.parent.SetActive(false);
-            this.blackHoleUI.parent.SetActive(false);
-        }
         else if (ui == this.neutronStarUI)
-        {
-            this.starUI.parent.SetActive(false);
-            this.planetUI.parent.SetActive(false);
-            this.moonUI.parent.SetActive(false);
-            this.starSystemUI.parent.SetActive(false);
-            this.beltUI.parent.SetActive(false);
-            this.whiteDwarfUI.parent.SetActive(false);
             this.neutronStarUI.parent.SetActive(true);
-            this.blackHoleUI.parent.SetActive(false);
-        }
         else if (ui == this.blackHoleUI)
-        {
-            this.starUI.parent.SetActive(false);
-            this.planetUI.parent.SetActive(false);
-            this.moonUI.parent.SetActive(false);
-            this.starSystemUI.parent.SetActive(false);
-            this.beltUI.parent.SetActive(false);
-            this.whiteDwarfUI.parent.SetActive(false);
-            this.neutronStarUI.parent.SetActive(false);
             this.blackHoleUI.parent.SetActive(true);
-        }
+        else if (ui == galaxyUI)
+            this.galaxyUI.parent.SetActive(true);
         else if (ui == this.beltUI)
-        {
             this.beltUI.parent.SetActive(true);
-        }
-        else
-        {
-            this.starUI.parent.SetActive(false);
-            this.planetUI.parent.SetActive(false);
-            this.moonUI.parent.SetActive(false);
-            this.starSystemUI.parent.SetActive(false);
-            this.beltUI.parent.SetActive(false);
-            this.whiteDwarfUI.parent.SetActive(false);
-            this.neutronStarUI.parent.SetActive(false);
-            this.blackHoleUI.parent.SetActive(false);
-        }
     }
 }
 
@@ -240,4 +180,27 @@ public class BlackHoleUI : UI
     public Text distance;
     public Text mass;
     public Text hertz;
+}
+
+[System.Serializable]
+public class GalaxyUI : UI
+{
+    public Text name;
+    public Text diameter;
+    public Text distance;
+    public Text numStars;
+    public Text shape;
+
+    public void SetShape(GalaxyShape shape)
+    {
+        switch (shape)
+        {
+            case GalaxyShape.Spiral:
+                this.shape.text = "SPIRAL";
+                break;
+            case GalaxyShape.Elliptical:
+                this.shape.text = "ELLIPTICAL";
+                break;
+        }
+    }
 }

@@ -222,7 +222,7 @@ public class Star : CelestialBody
     {
         this.luminosity = Mathf.Max(1.0f, luminosity);
 
-        float sizeByLuminosity = -Mathf.Pow(1.0000652f, -luminosity / Units.SOLAR_LUMINOSITY + 60000.0f) + 51.0f;
+        float sizeByLuminosity = -Mathf.Pow(1.0000652f, -luminosity / Units.SOLAR_LUMINOSITY + 21000.0f) + 5.0f;
 
         SerializedObject haloComponent = new SerializedObject(this.halo);
         haloComponent.FindProperty("m_Size").floatValue = Mathf.Max(this.diameter * sizeByLuminosity, this.diameter);

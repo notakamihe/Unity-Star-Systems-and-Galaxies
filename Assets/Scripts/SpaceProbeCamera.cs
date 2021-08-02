@@ -91,9 +91,9 @@ public class SpaceProbeCamera : MonoBehaviour
                     this.ui.starSystemUI.numPlanets.text = customizableStarSystem.planets.Count.ToString() + " PLANETS";
                     this.ui.starSystemUI.numDwarfPlanets.text = customizableStarSystem.dwarfPlanets.Count.ToString() + " DWARFS";
                 }
-                else if (starSystem is RandomStarSystem)
+                else if (starSystem is ProceduralStarSystem)
                 {
-                    RandomStarSystem randomStarSystem = (RandomStarSystem)starSystem;
+                    ProceduralStarSystem randomStarSystem = (ProceduralStarSystem)starSystem;
                     
                     this.ui.starSystemUI.numPlanets.text = randomStarSystem.planets.Count.ToString() + " PLANETS";
                     this.ui.starSystemUI.numDwarfPlanets.text = randomStarSystem.dwarfPlanets.Count.ToString() + " DWARFS";
@@ -120,6 +120,16 @@ public class SpaceProbeCamera : MonoBehaviour
                 this.ui.blackHoleUI.distance.text = $"{Units.ToDistanceUnit(blackHole.DistanceFromSurface(this.transform.position))}";
                 this.ui.blackHoleUI.mass.text = $"{Units.ToSolarMass(blackHole.mass).ToString("0.####")} M☉";
                 this.ui.blackHoleUI.hertz.text = $"{Units.ToHertz(blackHole.rotationSpeed).ToString("0")} HZ";
+            }
+            else if (hit.transform.gameObject.TryGetComponent(out Galaxy galaxy))
+            {
+                this.ui.SetUI(this.ui.galaxyUI);
+                this.ui.galaxyUI.name.text = galaxy.name?.ToUpper();
+                this.ui.galaxyUI.distance.text = Units.ToPC(Utils.DistanceFromSurface(galaxy.transform.position, 
+                    this.transform.position, galaxy.Radius));
+                this.ui.galaxyUI.numStars.text = $"{galaxy.numStars} STARS";
+                this.ui.galaxyUI.SetShape(galaxy.shape);
+                this.ui.galaxyUI.diameter.text = $"{Units.ToKPC(galaxy.Diameter)} KPC";
             }
         }
         else

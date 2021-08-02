@@ -43,8 +43,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0323d8db3746ed4a841af48b5ad85d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  halo: {fileID: 8562259140807292706, guid: 60d59677fb427ff49b2b51b9b0586275, type: 3}
+  timeScale: 0.000001
   starMat: {fileID: 2100000, guid: 982b92fa3def1e24ca1870dd28f37ca9, type: 2}
+  atmosphereMat: {fileID: 2100000, guid: 2c514eb30aa180540966e8c3b45e24f6, type: 2}
+  whiteDwarfMat: {fileID: 2100000, guid: b74a3b368f5fe9046b94f1e89719f3f6, type: 2}
+  blackHoleMat: {fileID: 2100000, guid: b153154893d827f488c8a7695e7d9fbd, type: 2}
+  neutronStarMat: {fileID: 2100000, guid: 08b968877e755104cbaba329f9d5797f, type: 2}
   gasGiantMats:
   - {fileID: 2100000, guid: 3087a47eca959ad419be140c257b505b, type: 2}
   - {fileID: 2100000, guid: 7412c169b6fc3e8408244e23cbf6d7c2, type: 2}
@@ -110,17 +114,14 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 67bdc3cdaba8d354c8cd775919faa9e2, type: 2}
   - {fileID: 2100000, guid: ce4cdd1f7368e684b90db5f0fbdd5d83, type: 2}
   - {fileID: 2100000, guid: 35822330897e21944b15e139f3acf578, type: 2}
+  halo: {fileID: 8562259140807292706, guid: 60d59677fb427ff49b2b51b9b0586275, type: 3}
+  blackHoleVFX: {fileID: 1676440489513134061, guid: c435288e977c15849911043d82ccc952, type: 3}
+  neutronStarVFX: {fileID: 7073510216735599134, guid: f14ccf7413598a64891aacca5fc5f667, type: 3}
+  planetaryNebulaVFX: {fileID: 790406564462305370, guid: fbc483566f7dfa849abf08a1d1a826ed, type: 3}
+  spiralGalaxyVFX: {fileID: 8861715462724323883, guid: 49db18b59452f984688b9b0181940d1c, type: 3}
+  ellipticalGalaxyVFX: {fileID: 43102971427095052, guid: badf2406f2e6c2f47939f49703da3974, type: 3}
+  supernovaPrefab: {fileID: 5326221249311632604, guid: eebdb4c0e687b074ba91a0d9b923c888, type: 3}
   asteroidPrefabs:
   - {fileID: 6085380965436752966, guid: 428358b01d12f00448af0823fc5ae4ac, type: 3}
   - {fileID: 1049921165818187444, guid: 78c86dddd0ad52b44995c45b4818a7ba, type: 3}
   - {fileID: 4023639413873580303, guid: f472a1c4030ab8f40bfb95fec62e71a6, type: 3}
-  boundaryMat: {fileID: 2100000, guid: b53f213cb705ec34a869f7ce82fda54d, type: 2}
-  atmosphereMat: {fileID: 2100000, guid: 2c514eb30aa180540966e8c3b45e24f6, type: 2}
-  supernovaPrefab: {fileID: 5326221249311632604, guid: eebdb4c0e687b074ba91a0d9b923c888, type: 3}
-  whiteDwarfMat: {fileID: 2100000, guid: b74a3b368f5fe9046b94f1e89719f3f6, type: 2}
-  blackHoleMat: {fileID: 2100000, guid: b153154893d827f488c8a7695e7d9fbd, type: 2}
-  neutronStarMat: {fileID: 2100000, guid: 08b968877e755104cbaba329f9d5797f, type: 2}
-  blackHoleVFX: {fileID: 1676440489513134061, guid: c435288e977c15849911043d82ccc952, type: 3}
-  neutronStarVFX: {fileID: 7073510216735599134, guid: f14ccf7413598a64891aacca5fc5f667, type: 3}
-  planetaryNebulaVFX: {fileID: 790406564462305370, guid: fbc483566f7dfa849abf08a1d1a826ed, type: 3}
-  timeScale: 0.00001

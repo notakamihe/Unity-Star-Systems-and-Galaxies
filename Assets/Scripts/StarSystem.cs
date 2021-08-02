@@ -17,6 +17,7 @@ public abstract class StarSystem : MonoBehaviour
     protected SphereCollider collider;
 
     protected bool probeEntered;
+    bool showSizeGizmo;
 
     public abstract void Clear(Transform target = null);
     public abstract void UpdateStarProperties();
@@ -38,13 +39,16 @@ public abstract class StarSystem : MonoBehaviour
         this.collider.isTrigger = true;
     }
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        Handles.color = new Color(1.0f, 0.0f, 0.0f, 0.1f);
-        Handles.DrawWireDisc(this.transform.position, Vector3.up, this.size);
+        if (Utils.DistanceFromSurface(this.transform.position, SpaceProbe.probe.transform.position, this.size) <= Units.LIGHT_YEAR)
+        {
+            Handles.color = new Color(1.0f, 0.0f, 0.0f, 0.25f);
+            Handles.DrawWireDisc(this.transform.position, this.transform.up, this.size);
+        }
     }
 
-    private void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerEnter(Collider other)
     {
         if (other.gameObject == SpaceProbe.probe.gameObject)
         {
@@ -54,7 +58,7 @@ public abstract class StarSystem : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    protected virtual void OnTriggerExit(Collider other)
     {
         if (other.gameObject == SpaceProbe.probe.gameObject)
         {
@@ -63,7 +67,6 @@ public abstract class StarSystem : MonoBehaviour
             SpaceProbe.probe.probeCamera.ui.succeedingPlanet.gameObject.SetActive(false);
         }
     }
-
 
     public void Die(Transform target)
     {

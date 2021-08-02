@@ -6,11 +6,8 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 
-public class RandomStarSystem : StarSystem
+public class ProceduralStarSystem : StarSystem
 {
-    [Range(0, 9)] public int numPlanets = 1;
-    [Range(1.35f, 1.65f)] public float scale = 1.5f;
-
     [HideInInspector] public List<Planet> planets = new List<Planet>();
     [HideInInspector] public List<Belt> belts = new List<Belt>();
     [HideInInspector] public List<DwarfPlanet> dwarfPlanets = new List<DwarfPlanet>();
@@ -29,7 +26,7 @@ public class RandomStarSystem : StarSystem
         base.OnEnable();
     }
 
-    private void OnValidate()
+    protected virtual void OnValidate()
     {
         this.Clear();
         this.star = this.CreateStar();
@@ -367,13 +364,16 @@ public class RandomStarSystem : StarSystem
 
     protected override void SetSystem()
     {
+        int numPlanets = Utils.random.Next(1, 10);
         float beltOffset = 0.0f;
         float prevDistance = Utils.NextFloat(0.01f, 0.4f) * Units.AU;
         float orbitalPeriodModifier = Utils.NextFloat(0.25f, 1.25f);
         int totalNumDwarfPlanets = 0;
         bool isProgradeClockwise = Utils.random.Next(0, 2) == 0;
 
-        for (int i = 0; i < this.numPlanets; i++)
+        this.farthestDistance = this.star.Radius;
+
+        for (int i = 0; i < numPlanets; i++)
         {
             float distance = prevDistance;
             float diameter = Utils.NextFloat(0.0f, 1.0f) <= 0.35f ? Utils.NextFloat(3.0f, 30.0f) : Utils.NextFloat(31.0f, 300.0f);
@@ -435,7 +435,7 @@ public class RandomStarSystem : StarSystem
 
                 beltOffset += thickness * 1.1f;
                 this.belts.Add(belt);
-                this.farthestDistance = beltDistance;
+                this.farthestDistance = beltDistance + thickness;
 
                 int numDwarfPlanets = Utils.random.Next(0, 7);
                 float minDistance = belt.innerRadius;

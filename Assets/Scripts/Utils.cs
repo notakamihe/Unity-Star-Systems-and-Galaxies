@@ -21,6 +21,17 @@ public static class Utils
         return Vector3.Distance(pos, otherPos) - radius;
     }
 
+    public static Behaviour GetHaloInChildren(Transform transform)
+    {
+        foreach (Transform child in transform)
+        {
+            if (child.GetComponent("Halo"))
+                return (Behaviour)child.GetComponent("Halo");
+        }
+
+        return null;
+    }
+
     public static float NextFloat(float min, float max)
     {
         return (float) (random.NextDouble() * (max - min) + min);

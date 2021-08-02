@@ -13,20 +13,31 @@ public class SpaceProbe : MonoBehaviour
     public float boostSpeed = 500.0f;
     public float slowSpeed = 5f;
     public float interstellarSpeed = 100000.0f;
+    public float intergalacticSpeed = 1000000000.0f;
 
     [HideInInspector] public SpaceProbeCamera probeCamera;
 
-    private void Start()
+    [HideInInspector] public bool movePlayer = false;
+
+    float maxInterstellarSpeed;
+    bool moved;
+    float timeMoved;
+
+    bool tabPressed;
+    float timeTabPressed;
+
+    private void OnEnable()
     {
         probe = this;
         this.probeCamera = this.GetComponentInChildren<SpaceProbeCamera>();
+        this.maxInterstellarSpeed = this.interstellarSpeed * 100.0f;
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Singleton.Instance.timeScale = 0.00001f;
+            Singleton.Instance.timeScale = 0.000001f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
@@ -61,37 +72,92 @@ public class SpaceProbe : MonoBehaviour
             Singleton.Instance.timeScale = 10.0f;
         }
 
-        float forward, horizontal, vertical;
+        float forward = 0.0f, horizontal = 0.0f, vertical = 0.0f;
 
-        if (Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.Tab))
         {
-            forward = Input.GetAxis("Forward") * this.interstellarSpeed;
-            horizontal = Input.GetAxis("Horizontal") * this.interstellarSpeed;
-            vertical = Input.GetAxis("Vertical") * this.interstellarSpeed;
-        }
-        else if (Input.GetKey(KeyCode.Space))
-        {
-            forward = Input.GetAxis("Forward") * this.boostSpeed;
-            horizontal = Input.GetAxis("Horizontal") * this.boostSpeed;
-            vertical = Input.GetAxis("Vertical") * this.boostSpeed;
-        }
-        else if (Input.GetKey(KeyCode.LeftShift))
-        {
-            forward = Input.GetAxis("Forward") * this.slowSpeed;
-            horizontal = Input.GetAxis("Horizontal") * this.slowSpeed;
-            vertical = Input.GetAxis("Vertical") * this.slowSpeed;
+            if (!this.tabPressed)
+            {
+                this.tabPressed = true;
+                this.timeTabPressed = Time.time;
+            }
+
+            if (!movePlayer)
+            {
+                if (Time.time - this.timeTabPressed >= 3.0f)
+                {
+                    this.probeCamera.ui.galaticSpeedProgressBar.gameObject.SetActive(false);
+
+                    forward = Input.GetAxis("Forward") * this.intergalacticSpeed;
+                    horizontal = Input.GetAxis("Horizontal") * this.intergalacticSpeed;
+                    vertical = Input.GetAxis("Vertical") * this.intergalacticSpeed;
+                }
+                else
+                {
+                    Vector2 newDimensions = this.probeCamera.ui.galaticSpeedProgressBar.rectTransform.sizeDelta;
+                    newDimensions.x = (Time.time - this.timeTabPressed) / 3.0f * 21.0f; 
+
+                    this.probeCamera.ui.galaticSpeedProgressBar.gameObject.SetActive(true);
+                    this.probeCamera.ui.galaticSpeedProgressBar.rectTransform.sizeDelta = newDimensions;
+                }
+            }
         }
         else
         {
-            forward = Input.GetAxis("Forward") * this.speed;
-            horizontal = Input.GetAxis("Horizontal") * this.speed;
-            vertical = Input.GetAxis("Vertical") * this.speed;
+            this.probeCamera.ui.galaticSpeedProgressBar.gameObject.SetActive(false);
+            this.tabPressed = false;
+
+            if (Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.LeftShift))
+            {
+                if (!this.moved)
+                {
+                    this.moved = true;
+                    this.timeMoved = Time.time;
+                }
+
+                if (Mathf.Abs(Input.GetAxis("Forward")) >= 0.25f || Mathf.Abs(Input.GetAxis("Horizontal")) >= 0.25f ||
+                    Mathf.Abs(Input.GetAxis("Vertical")) >= 0.25f)
+                {
+                    float speed = Mathf.Lerp(this.interstellarSpeed, this.maxInterstellarSpeed, (Time.time - this.timeMoved) / 15.0f);
+
+                    forward = Input.GetAxis("Forward") * speed;
+                    horizontal = Input.GetAxis("Horizontal") * speed;
+                    vertical = Input.GetAxis("Vertical") * speed;
+                }
+                else if ((Mathf.Abs(Input.GetAxis("Forward")) <= 0.25f && Mathf.Abs(Input.GetAxis("Horizontal")) <= 0.25f &&
+                    Mathf.Abs(Input.GetAxis("Vertical")) <= 0.25f) && moved)
+                {
+                    this.moved = false;
+                }
+            }
+            else if (Input.GetKey(KeyCode.Space))
+            {
+                forward = Input.GetAxis("Forward") * this.boostSpeed;
+                horizontal = Input.GetAxis("Horizontal") * this.boostSpeed;
+                vertical = Input.GetAxis("Vertical") * this.boostSpeed;
+            }
+            else if (Input.GetKey(KeyCode.LeftShift))
+            {
+                forward = Input.GetAxis("Forward") * this.slowSpeed;
+                horizontal = Input.GetAxis("Horizontal") * this.slowSpeed;
+                vertical = Input.GetAxis("Vertical") * this.slowSpeed;
+            }
+            else
+            {
+                forward = Input.GetAxis("Forward") * this.speed;
+                horizontal = Input.GetAxis("Horizontal") * this.speed;
+                vertical = Input.GetAxis("Vertical") * this.speed;
+            }
         }
 
         Vector3 movement = this.transform.forward * forward + this.transform.right * horizontal + this.transform.up * vertical;
-        Universe.Move(-movement);
 
-        this.transform.position = Vector3.zero;
+        if (!movePlayer)
+            Universe.Move(-movement);
+        else
+        {
+            this.Move(movement);
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -104,6 +170,11 @@ public class SpaceProbe : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        this.probeCamera.camera.nearClipPlane = 10.0f;
+        this.probeCamera.camera.nearClipPlane = 7.0f;
+    }
+
+    public void Move(Vector3 direction)
+    {
+        this.transform.Translate(direction * Time.deltaTime, Space.World);
     }
 }

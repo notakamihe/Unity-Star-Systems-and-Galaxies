@@ -4,6 +4,8 @@ public static class Units {
     public const float G = 6.67f;
     public const float AU = 1500.0f;
     public const float LIGHT_YEAR = 948615.0f;
+    public const float KPC = 3092489.0f;
+    public const float MPC = 3092489000.0f;
     public const float SOLAR_RADIUS = 2500.0f;
     public const float SOLAR_MASS = 198801000.0f;
     public const float SOLAR_LUMINOSITY = 5.0f;
@@ -36,9 +38,71 @@ public static class Units {
         }
     }
 
+    public static float ToEarthMass(float mass)
+    {
+        return mass / EARTH_MASS;
+    }
+
+    public static float ToEarthRadius(float radius)
+    {
+        return radius / EARTH_RADIUS;
+    }
+
     public static float ToHertz(float rotationSpeed)
     {
         return rotationSpeed / 100489.0f;
+    }
+
+    public static float ToHour(float days)
+    {
+        return days * 24.0f;
+    }
+
+    public static float ToJupiterMass(float mass)
+    {
+        return mass / JUPITER_MASS;
+    }
+
+    public static float ToJupiterRadius(float radius)
+    {
+        return radius / JUPITER_RADIUS;
+    }
+
+    public static float ToKPC(float distance)
+    {
+        return distance / KPC;
+    }
+
+    public static float ToLightYear(float distance)
+    {
+        return distance / LIGHT_YEAR;
+    }
+
+    public static float ToLunarMass(float mass)
+    {
+        return mass / LUNAR_MASS;
+    }
+
+    public static float ToLunarRadius(float radius)
+    {
+        return radius / LUNAR_RADIUS;
+    }
+
+    public static float ToMPC(float distance)
+    {
+        return distance / MPC;
+    }
+
+    public static string ToPC(float distance)
+    {
+        if (distance >= MPC)
+        {
+            return ToMPC(distance).ToString("0.##") + " MPC";
+        }
+        else
+        {
+            return ToKPC(distance).ToString("0.##") + " KPC";
+        }
     }
 
     public static string ToPlanetMassUnit(float mass)
@@ -65,6 +129,21 @@ public static class Units {
         }
     }
 
+    public static float ToSolarLuminosity(float luminosity)
+    {
+        return luminosity / SOLAR_LUMINOSITY;
+    }
+
+    public static float ToSolarMass(float mass)
+    {
+        return mass / SOLAR_MASS;
+    }
+
+    public static float ToSolarRadius(float radius)
+    {
+        return radius / SOLAR_RADIUS;
+    }
+
     public static string ToTimeUnit(float days)
     {
         if (days <= 3.0f)
@@ -79,61 +158,6 @@ public static class Units {
         {
             return days.ToString("#.#") + "D";
         }
-    }
-
-    public static float ToEarthMass(float mass)
-    {
-        return mass / EARTH_MASS;
-    }
-
-    public static float ToEarthRadius(float radius)
-    {
-        return radius / EARTH_RADIUS;
-    }
-
-    public static float ToHour(float days)
-    {
-        return days * 24.0f;
-    }
-
-    public static float ToJupiterMass(float mass)
-    {
-        return mass / JUPITER_MASS;
-    }
-
-    public static float ToJupiterRadius(float radius)
-    {
-        return radius / JUPITER_RADIUS;
-    }
-
-    public static float ToLightYear(float distance)
-    {
-        return distance / LIGHT_YEAR;
-    }
-
-    public static float ToLunarMass(float mass)
-    {
-        return mass / LUNAR_MASS;
-    }
-
-    public static float ToLunarRadius(float radius)
-    {
-        return radius / LUNAR_RADIUS;
-    }
-
-    public static float ToSolarLuminosity(float luminosity)
-    {
-        return luminosity / SOLAR_LUMINOSITY;
-    }
-
-    public static float ToSolarMass(float mass)
-    {
-        return mass / SOLAR_MASS;
-    }
-
-    public static float ToSolarRadius(float radius)
-    {
-        return radius / SOLAR_RADIUS;
     }
 
     public static float ToYear(float days)

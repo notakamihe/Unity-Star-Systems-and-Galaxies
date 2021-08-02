@@ -28,7 +28,9 @@ public class Moon : World
             if (orbit)
             {
                 this.SetTilt(this.axialTilt);
-                this.transform.rotation = Quaternion.LookRotation(this.transform.position - orbit.parent.position);
+
+                if (this.transform.position - orbit.parent.position != Vector3.zero)
+                    this.transform.rotation = Quaternion.LookRotation(this.transform.position - orbit.parent.position);
             }
         }
         else

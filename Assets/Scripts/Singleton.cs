@@ -17,30 +17,27 @@ public class Singleton : MonoBehaviour
         }
     }
 
-    public GameObject halo;
+    public float timeScale = 0.00001f;
 
     public Material starMat;
+    public Material atmosphereMat;
+    public Material whiteDwarfMat;
+    public Material blackHoleMat;
+    public Material neutronStarMat;
 
     public Material[] gasGiantMats;
     public TerrestrialMats terrestrialMats;
     public Material[] ringMats;
 
-    public GameObject[] asteroidPrefabs;
-
-    public Material boundaryMat;
-
-    public Material atmosphereMat;
-
-    public GameObject supernovaPrefab;
-
-    public Material whiteDwarfMat;
-    public Material blackHoleMat;
-    public Material neutronStarMat;
+    public GameObject halo;
     public GameObject blackHoleVFX;
     public GameObject neutronStarVFX;
     public GameObject planetaryNebulaVFX;
+    public GalaxyVFX spiralGalaxyVFX;
+    public GalaxyVFX ellipticalGalaxyVFX;
 
-    public float timeScale = 0.00001f;
+    public GameObject supernovaPrefab;
+    public GameObject[] asteroidPrefabs;
 }
 
 [System.Serializable]
