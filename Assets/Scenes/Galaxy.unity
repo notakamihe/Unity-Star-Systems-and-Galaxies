@@ -169,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: My Galaxy
   shape: 0
-  diameterInKPC: 25
+  diameterInKPC: 5
   centerDiameterPercentage: 0.2
   numArms: 5
   color: {r: 1, g: 0.7216981, b: 0.7216981, a: 1}

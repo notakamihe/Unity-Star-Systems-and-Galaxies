@@ -41,10 +41,12 @@ public abstract class StarSystem : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (Utils.DistanceFromSurface(this.transform.position, SpaceProbe.probe.transform.position, this.size) <= Units.LIGHT_YEAR)
+        if (SpaceProbe.probe && Utils.DistanceFromSurface(this.transform.position, SpaceProbe.probe.transform.position, this.size) <= Units.LIGHT_YEAR)
         {
             Handles.color = new Color(1.0f, 0.0f, 0.0f, 0.25f);
             Handles.DrawWireDisc(this.transform.position, this.transform.up, this.size);
+            Handles.color = new Color(1.0f, 0.0f, 0.0f, 0.10f);
+            Handles.DrawLine(this.transform.position, this.transform.position + this.transform.forward * this.size);
         }
     }
 

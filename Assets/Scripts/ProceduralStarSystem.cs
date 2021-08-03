@@ -21,17 +21,21 @@ public class ProceduralStarSystem : StarSystem
 
     float farthestDistance = 100000.0f;
 
+    bool initialized = false;
+
     protected override void OnEnable()
     {
         base.OnEnable();
-    }
 
-    protected virtual void OnValidate()
-    {
-        this.Clear();
-        this.star = this.CreateStar();
-        this.UpdateSystem();
-        this.SetSize();
+        if (!this.initialized)
+        {
+            this.initialized = true;
+
+            this.Clear();
+            this.star = this.CreateStar();
+            this.UpdateSystem();
+            this.SetSize();
+        }
     }
 
     Atmosphere AddAtmosphere(World world, float distance)
@@ -380,7 +384,6 @@ public class ProceduralStarSystem : StarSystem
 
             prevDistance += 300.0f + Utils.NextFloat(0.1f, 15.0f) * Units.AU * 
                 Mathf.Min(1.0f, (Mathf.Pow(1.2f, distance / Units.AU - 7.0f) - 0.1f)) + beltOffset;
-            distance += diameter * 0.5f;
 
             float mass;
             float orbitalPeriod;
@@ -394,6 +397,8 @@ public class ProceduralStarSystem : StarSystem
                 orbitalPeriod = Mathf.Pow(1.038f, distance / Units.AU + 65.0f) * 365.0f;
             else
                 orbitalPeriod = (Mathf.Pow(1.67f, distance / Units.AU) - 1.0f + ((distance / Units.AU) / 3.0f)) * 365.0f * orbitalPeriodModifier;
+
+            distance += diameter * 0.5f;
 
             Vector3 orbitPos = this.star.transform.position + this.star.transform.forward * (this.star.Radius + distance);
             string name = Planet.NameByStar(this.star, i);

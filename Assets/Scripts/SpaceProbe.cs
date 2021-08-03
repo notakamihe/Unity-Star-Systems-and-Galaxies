@@ -20,8 +20,7 @@ public class SpaceProbe : MonoBehaviour
     [HideInInspector] public bool movePlayer = false;
 
     float maxInterstellarSpeed;
-    bool moved;
-    float timeMoved;
+    float timeSpaceTabReleased;
 
     bool tabPressed;
     float timeTabPressed;
@@ -95,7 +94,7 @@ public class SpaceProbe : MonoBehaviour
                 else
                 {
                     Vector2 newDimensions = this.probeCamera.ui.galaticSpeedProgressBar.rectTransform.sizeDelta;
-                    newDimensions.x = (Time.time - this.timeTabPressed) / 3.0f * 21.0f; 
+                    newDimensions.x = (Time.time - this.timeTabPressed) / 3.0f * 21.0f;
 
                     this.probeCamera.ui.galaticSpeedProgressBar.gameObject.SetActive(true);
                     this.probeCamera.ui.galaticSpeedProgressBar.rectTransform.sizeDelta = newDimensions;
@@ -109,44 +108,39 @@ public class SpaceProbe : MonoBehaviour
 
             if (Input.GetKey(KeyCode.Space) && Input.GetKey(KeyCode.LeftShift))
             {
-                if (!this.moved)
+                if (Input.GetAxis("Forward") == 0 && Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0)
                 {
-                    this.moved = true;
-                    this.timeMoved = Time.time;
+                    this.timeSpaceTabReleased = Time.time;
                 }
 
-                if (Mathf.Abs(Input.GetAxis("Forward")) >= 0.25f || Mathf.Abs(Input.GetAxis("Horizontal")) >= 0.25f ||
-                    Mathf.Abs(Input.GetAxis("Vertical")) >= 0.25f)
-                {
-                    float speed = Mathf.Lerp(this.interstellarSpeed, this.maxInterstellarSpeed, (Time.time - this.timeMoved) / 15.0f);
+                float speed = Mathf.Lerp(this.interstellarSpeed, this.maxInterstellarSpeed, (Time.time - this.timeSpaceTabReleased) / 15.0f);
 
-                    forward = Input.GetAxis("Forward") * speed;
-                    horizontal = Input.GetAxis("Horizontal") * speed;
-                    vertical = Input.GetAxis("Vertical") * speed;
-                }
-                else if ((Mathf.Abs(Input.GetAxis("Forward")) <= 0.25f && Mathf.Abs(Input.GetAxis("Horizontal")) <= 0.25f &&
-                    Mathf.Abs(Input.GetAxis("Vertical")) <= 0.25f) && moved)
-                {
-                    this.moved = false;
-                }
-            }
-            else if (Input.GetKey(KeyCode.Space))
-            {
-                forward = Input.GetAxis("Forward") * this.boostSpeed;
-                horizontal = Input.GetAxis("Horizontal") * this.boostSpeed;
-                vertical = Input.GetAxis("Vertical") * this.boostSpeed;
-            }
-            else if (Input.GetKey(KeyCode.LeftShift))
-            {
-                forward = Input.GetAxis("Forward") * this.slowSpeed;
-                horizontal = Input.GetAxis("Horizontal") * this.slowSpeed;
-                vertical = Input.GetAxis("Vertical") * this.slowSpeed;
+                forward = Input.GetAxis("Forward") * speed;
+                horizontal = Input.GetAxis("Horizontal") * speed;
+                vertical = Input.GetAxis("Vertical") * speed;
             }
             else
             {
-                forward = Input.GetAxis("Forward") * this.speed;
-                horizontal = Input.GetAxis("Horizontal") * this.speed;
-                vertical = Input.GetAxis("Vertical") * this.speed;
+                this.timeSpaceTabReleased = Time.time;
+
+                if (Input.GetKey(KeyCode.Space))
+                {
+                    forward = Input.GetAxis("Forward") * this.boostSpeed;
+                    horizontal = Input.GetAxis("Horizontal") * this.boostSpeed;
+                    vertical = Input.GetAxis("Vertical") * this.boostSpeed;
+                }
+                else if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    forward = Input.GetAxis("Forward") * this.slowSpeed;
+                    horizontal = Input.GetAxis("Horizontal") * this.slowSpeed;
+                    vertical = Input.GetAxis("Vertical") * this.slowSpeed;
+                }
+                else
+                {
+                    forward = Input.GetAxis("Forward") * this.speed;
+                    horizontal = Input.GetAxis("Horizontal") * this.speed;
+                    vertical = Input.GetAxis("Vertical") * this.speed;
+                }
             }
         }
 

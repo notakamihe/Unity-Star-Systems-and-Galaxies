@@ -7,9 +7,9 @@ using UnityEngine;
 
 public class GalaxyStarSystem : ProceduralStarSystem
 {
-    protected override void OnValidate()
+    protected override void OnEnable()
     {
-        base.OnValidate();
+        base.OnEnable();
         this.ToggleBodies(false);
     }
 
