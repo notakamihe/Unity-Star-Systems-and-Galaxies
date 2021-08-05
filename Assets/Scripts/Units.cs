@@ -30,7 +30,7 @@ public static class Units {
         }
         else if (distance < AU)
         {
-            return (distance * 10000.0f).ToString("0") + " KM";
+            return (distance * 100000.0f).ToString("0") + " KM";
         }
         else
         {

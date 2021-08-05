@@ -35,7 +35,6 @@ public class CustomizableStarSystem : StarSystem
     List<CustomizableDwarfPlanet> prevDwarfPlanets = new List<CustomizableDwarfPlanet>();
 
     bool initialized = false;
-    bool probeEntered = false;
 
     private void Start()
     {

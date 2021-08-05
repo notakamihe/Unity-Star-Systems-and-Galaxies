@@ -34,6 +34,12 @@ public class SpaceProbe : MonoBehaviour
 
     private void Update()
     {
+        if (this.transform.position.x > 50000.0f || this.transform.position.y > 50000.0f || this.transform.position.z > 50000.0f)
+        {
+            this.transform.position = Vector3.zero;
+            this.movePlayer = false;
+        }
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Singleton.Instance.timeScale = 0.000001f;

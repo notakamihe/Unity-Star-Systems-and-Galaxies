@@ -114,6 +114,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 67bdc3cdaba8d354c8cd775919faa9e2, type: 2}
   - {fileID: 2100000, guid: ce4cdd1f7368e684b90db5f0fbdd5d83, type: 2}
   - {fileID: 2100000, guid: 35822330897e21944b15e139f3acf578, type: 2}
+  - {fileID: 2100000, guid: c5e21b7d9e3f71b49bcbff7237b2c5ff, type: 2}
   halo: {fileID: 8562259140807292706, guid: 60d59677fb427ff49b2b51b9b0586275, type: 3}
   blackHoleVFX: {fileID: 1676440489513134061, guid: c435288e977c15849911043d82ccc952, type: 3}
   neutronStarVFX: {fileID: 7073510216735599134, guid: f14ccf7413598a64891aacca5fc5f667, type: 3}

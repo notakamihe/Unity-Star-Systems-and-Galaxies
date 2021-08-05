@@ -41,7 +41,9 @@ public class GalaxyVFX : MonoBehaviour
 
     private void OnValidate()
     {
-        this.StartCoroutine(ChangeGalaxySpeed(0.0f, 1.0f));
+        if (this.gameObject.active)
+            this.StartCoroutine(ChangeGalaxySpeed(0.0f, 1.0f));
+
         this.played = false;
 
         this.SetArms(this.numArms);

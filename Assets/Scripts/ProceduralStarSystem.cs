@@ -67,6 +67,7 @@ public class ProceduralStarSystem : StarSystem
             };
         }
 
+        this.planets.Clear();
         this.belts.Clear();
         this.dwarfPlanets.Clear();
     }
@@ -274,9 +275,9 @@ public class ProceduralStarSystem : StarSystem
             float distanceFlat = Vector3.Distance(probePosFlat, starPosFlat) - this.star.Radius;
             Planet[] allPlanets = this.planets.Concat(this.dwarfPlanets).ToArray();
 
-            Planet prevPlanet = planets.Where(c => this.star.DistanceFromSurface(c.transform.position) < distanceFlat)
+            Planet prevPlanet = allPlanets.Where(c => this.star.DistanceFromSurface(c.transform.position) < distanceFlat)
                 .OrderByDescending(c => this.star.DistanceFromSurface(c.transform.position)).FirstOrDefault();
-            Planet nextPlanet = planets.Where(c => this.star.DistanceFromSurface(c.transform.position) > distanceFlat)
+            Planet nextPlanet = allPlanets.Where(c => this.star.DistanceFromSurface(c.transform.position) > distanceFlat)
                 .OrderBy(c => this.star.DistanceFromSurface(c.transform.position)).FirstOrDefault();
 
             if (prevPlanet != null)
@@ -369,10 +370,10 @@ public class ProceduralStarSystem : StarSystem
     protected override void SetSystem()
     {
         int numPlanets = Utils.random.Next(1, 10);
+        int numDwarfs = 0;
         float beltOffset = 0.0f;
         float prevDistance = Utils.NextFloat(0.01f, 0.4f) * Units.AU;
         float orbitalPeriodModifier = Utils.NextFloat(0.25f, 1.25f);
-        int totalNumDwarfPlanets = 0;
         bool isProgradeClockwise = Utils.random.Next(0, 2) == 0;
 
         this.farthestDistance = this.star.Radius;
@@ -447,10 +448,10 @@ public class ProceduralStarSystem : StarSystem
 
                 for (int j = 0; j < numDwarfPlanets; j++)
                 {
-                    totalNumDwarfPlanets++;
+                    numDwarfs++;
 
                     float dpDistance = Utils.NextFloat(minDistance, belt.outerRadius);
-                    string dpName = $"{star.name} D{totalNumDwarfPlanets}"; ;
+                    string dpName = $"{star.name} Dwarf {numDwarfs}"; ;
                     float dpDiameter = Utils.NextFloat(1.0f, 3.0f);
                     float dpMass = (Mathf.Pow(1.0185f, 3.0f * dpDiameter - 15.0f) - 0.5f) * Units.EARTH_MASS * Utils.NextFloat(0.5f, 1.5f);
                     Vector3 dpOrbitPos = this.star.transform.position + this.star.transform.forward * dpDistance;
