@@ -34,13 +34,13 @@ public class BlackHole : CompactStar, Attractor
         blackHole.SetMat(Singleton.Instance.blackHoleMat);
         blackHole.temperature = 0.00000006f;
         blackHole.rotationSpeed = rotationSpeed;
-        blackHole.halo = blackHole.CreateHalo(blackHole.diameter * 1.5f, Color.white);
+        blackHole.halo = blackHole.CreateHalo(blackHole.diameter, Color.white);
 
         GameObject vfxObj = Instantiate(Singleton.Instance.blackHoleVFX, obj.transform.position, Quaternion.identity, obj.transform);
         BlackHoleVFX vfx = vfxObj.GetComponent<BlackHoleVFX>();
 
         vfx.SetAccretionDisk(diameter * 2.0f);
-        vfx.SetJets(diameter * 2.0f);
+        vfx.SetJets(diameter * 50.0f);
 
         obj.transform.eulerAngles = new Vector3(Random.Range(-65.0f, 65.0f), 0.0f, Random.Range(-65.0f, 65.0f));
 

@@ -8,7 +8,7 @@ using UnityEngine;
 public class BlackHoleVFX : MonoBehaviour
 {
     public ParticleSystem accretionDisk;
-    public ParticleSystem[] jets;
+    public Transform[] jetPivots;
 
     public void SetAccretionDisk(float size)
     {
@@ -17,9 +17,10 @@ public class BlackHoleVFX : MonoBehaviour
 
     public void SetJets(float size)
     {
-        foreach (ParticleSystem jet in jets)
+        foreach (Transform pivot in this.jetPivots)
         {
-            jet.transform.localScale = new Vector3(1.0f, 5.0f, 1.0f) * size;
+           pivot.transform.localScale = Vector3.one * size;
+           pivot.localPosition = Vector3.zero;
         }
     }
 }

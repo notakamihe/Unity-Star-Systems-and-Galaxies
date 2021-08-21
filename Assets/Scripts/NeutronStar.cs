@@ -37,7 +37,7 @@ public class NeutronStar : CompactStar
         GameObject vfxObj = Instantiate(Singleton.Instance.neutronStarVFX, obj.transform.position, Quaternion.identity, obj.transform);
         NeutronStarVFX vfx = vfxObj.GetComponent<NeutronStarVFX>();
 
-        vfx.SetBeams(diameter * 0.1f);
+        vfx.SetBeams(Utils.NextFloat(50.0f, 200.0f));
     }
 
     private void Update()

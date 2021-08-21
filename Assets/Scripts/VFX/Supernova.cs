@@ -40,7 +40,7 @@ public class Supernova : MonoBehaviour
         switch (this.remnant)
         {
             case Remnant.BlackHole:
-                BlackHole.Create(this.transform.parent, this.transform.position, Utils.NextFloat(10.0f, 100.0f),
+                BlackHole.Create(this.transform.parent, this.transform.position, Utils.NextFloat(100.0f, 200.0f),
                 Utils.NextFloat(5.0f, 100.0f) * Units.SOLAR_MASS, Utils.NextFloat(0.1f, 0.9f) * Units.SPEED_OF_LIGHT);
                 break;
             case Remnant.NeutronStar:
@@ -49,7 +49,7 @@ public class Supernova : MonoBehaviour
                 break;
         }
 
-        DestroyImmediate(this.gameObject);
+        Utils.Destroy(this, this.gameObject);
     }
 
     void Expand()

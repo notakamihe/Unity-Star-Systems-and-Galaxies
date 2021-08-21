@@ -11,6 +11,11 @@ public static class Utils
 {
     public static System.Random random = new System.Random();
 
+    public static Quaternion RandomRotation
+    {
+        get { return Quaternion.Euler(NextFloat(0.0f, 360.0f), NextFloat(0.0f, 360.0f), NextFloat(0.0f, 360.0f)); }
+    }
+
     public static void Destroy(MonoBehaviour instance, Object obj)
     {
         instance.StartCoroutine(WaitAndDestroy(obj));

@@ -78,6 +78,8 @@ public abstract class StarSystem : MonoBehaviour
         SpaceProbe.probe.probeCamera.ui.precedingPlanet.gameObject.SetActive(false);
         SpaceProbe.probe.probeCamera.ui.succeedingPlanet.gameObject.SetActive(false);
 
+
+        this.collider.enabled = false;
         Utils.Destroy(this, this);
     }
 }

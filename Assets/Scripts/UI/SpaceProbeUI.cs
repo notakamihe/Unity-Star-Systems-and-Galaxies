@@ -25,34 +25,15 @@ public class SpaceProbeUI : MonoBehaviour
 
     public void SetUI(UI ui)
     {
-        this.starUI.parent.SetActive(false);
-        this.planetUI.parent.SetActive(false);
-        this.moonUI.parent.SetActive(false);
-        this.starSystemUI.parent.SetActive(false);
-        this.beltUI.parent.SetActive(false);
-        this.whiteDwarfUI.parent.SetActive(false);
-        this.neutronStarUI.parent.SetActive(false);
-        this.blackHoleUI.parent.SetActive(false);
-        this.galaxyUI.parent.SetActive(false);
-
-        if (ui == this.starUI)
-            this.starUI.parent.SetActive(true);
-        else if (ui == this.planetUI)
-            this.planetUI.parent.SetActive(true);
-        else if (ui == this.moonUI)
-            this.moonUI.parent.SetActive(true);
-        else if (ui == this.starSystemUI)
-            this.starSystemUI.parent.SetActive(true);
-        else if (ui == this.whiteDwarfUI)
-            this.whiteDwarfUI.parent.SetActive(true);
-        else if (ui == this.neutronStarUI)
-            this.neutronStarUI.parent.SetActive(true);
-        else if (ui == this.blackHoleUI)
-            this.blackHoleUI.parent.SetActive(true);
-        else if (ui == galaxyUI)
-            this.galaxyUI.parent.SetActive(true);
-        else if (ui == this.beltUI)
-            this.beltUI.parent.SetActive(true);
+        this.starUI.parent.SetActive(ui == this.starUI);
+        this.planetUI.parent.SetActive(ui == this.planetUI);
+        this.moonUI.parent.SetActive(ui == this.moonUI);
+        this.starSystemUI.parent.SetActive(ui == this.starSystemUI);
+        this.beltUI.parent.SetActive(ui == this.beltUI);
+        this.whiteDwarfUI.parent.SetActive(ui == this.whiteDwarfUI);
+        this.neutronStarUI.parent.SetActive(ui == this.neutronStarUI);
+        this.blackHoleUI.parent.SetActive(ui == this.blackHoleUI);
+        this.galaxyUI.parent.SetActive(ui == this.galaxyUI);
     }
 }
 

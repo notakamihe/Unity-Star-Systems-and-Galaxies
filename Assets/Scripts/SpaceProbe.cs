@@ -160,7 +160,7 @@ public class SpaceProbe : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
         if (other.GetComponent(typeof(CelestialBody)))
         {

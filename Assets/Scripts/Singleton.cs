@@ -33,8 +33,7 @@ public class Singleton : MonoBehaviour
     public GameObject blackHoleVFX;
     public GameObject neutronStarVFX;
     public GameObject planetaryNebulaVFX;
-    public GalaxyVFX spiralGalaxyVFX;
-    public GalaxyVFX ellipticalGalaxyVFX;
+    public GalaxyVFX galaxyVFX;
 
     public GameObject supernovaPrefab;
     public GameObject[] asteroidPrefabs;

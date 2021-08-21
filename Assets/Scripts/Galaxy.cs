@@ -17,7 +17,6 @@ public class Galaxy : MonoBehaviour
     public new string name;
     public GalaxyShape shape;
     [Range(1.0f, 100.0f)] public float diameterInKPC = 1.0f;
-    [Range(0.0f, 1.0f)] public float centerDiameterPercentage = 0.2f;
     [Range(2, 7)] public int numArms = 2;
     public Color color = Color.white;
     [Range(1, 100)] public int numStars = 8;
@@ -54,7 +53,6 @@ public class Galaxy : MonoBehaviour
         galaxy.shape = shape;
         galaxy.color = color;
         galaxy.diameterInKPC = diamterInKPC;
-        galaxy.centerDiameterPercentage = centerDiameterPercentage;
         galaxy.numArms = numArms;
         galaxy.numStars = numStars;
 
@@ -65,38 +63,23 @@ public class Galaxy : MonoBehaviour
     {
         this.collider = this.GetComponent<SphereCollider>();
         this.collider.radius = this.Radius;
-
         this.gameObject.name = this.name;
 
-        switch (this.shape)
-        {
-            case GalaxyShape.Spiral:
-                vfx = Instantiate(Singleton.Instance.spiralGalaxyVFX, this.transform.position, 
-                    Singleton.Instance.spiralGalaxyVFX.transform.rotation);
-                vfx.transform.localScale = Vector3.one * this.Diameter / 1333.0f;
-                break;
-            case GalaxyShape.Elliptical:
-                vfx = Instantiate(Singleton.Instance.ellipticalGalaxyVFX, this.transform.position,
-                    Singleton.Instance.spiralGalaxyVFX.transform.rotation);
-                vfx.transform.localScale = new Vector3(1.0f, 0.6f, 1.0f) * this.Diameter / 1333.0f;
-                break;
-        }
-
-        vfx.SetArms(numArms);
-        vfx.SetCenterSizePercentage(this.centerDiameterPercentage);
-        vfx.SetColor(this.color);
-        vfx.transform.parent = this.transform;
+        this.vfx = Instantiate(Singleton.Instance.galaxyVFX, this.transform.position, Singleton.Instance.galaxyVFX.transform.rotation);
+        this.vfx.isSpiral = this.shape == GalaxyShape.Spiral;
+        this.vfx.transform.parent = this.transform;
+        this.vfx.transform.localScale = Vector3.one * this.Diameter / 2666.0f;
+        this.vfx.SetArms(numArms);
+        this.vfx.SetColor(this.color);
 
         for (int i = 0; i < numStars; i++)
         {
             Vector3 pos;
             float ang = Utils.NextFloat(0.0f, 360.0f);
 
-            pos.x = this.transform.position.x + Utils.NextFloat(this.centerDiameterPercentage * this.Radius, this.Radius) * 
-                Mathf.Sin(ang * Mathf.Deg2Rad);
+            pos.x = this.transform.position.x + Utils.NextFloat(0.1f * this.Radius, this.Radius) * Mathf.Sin(ang * Mathf.Deg2Rad);
             pos.y = this.transform.position.y + Utils.NextFloat(-this.Diameter * 0.1f, this.Diameter * 0.1f);
-            pos.z = this.transform.position.z + Utils.NextFloat(this.centerDiameterPercentage * this.Radius, this.Radius) * 
-                Mathf.Cos(ang * Mathf.Deg2Rad);
+            pos.z = this.transform.position.z + Utils.NextFloat(0.1f * this.Radius, this.Radius) * Mathf.Cos(ang * Mathf.Deg2Rad);
 
             Orbit orbit = Orbit.Create("Orbit of ", pos, this.transform, this.transform, Utils.NextFloat(100000000.0f, 1000000000.0f), 
                 this.transform.up, Utils.random.Next(0, 2) == 0, Utils.NextFloat(0.0f, 60.0f));

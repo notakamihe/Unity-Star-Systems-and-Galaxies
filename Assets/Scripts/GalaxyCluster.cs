@@ -31,10 +31,10 @@ public class GalaxyCluster : MonoBehaviour
             pos.y = this.transform.position.y + Utils.NextFloat(0.0f, this.Radius) * Mathf.Sin(Utils.NextFloat(0.0f, 360.0f) * Mathf.Deg2Rad);
             pos.z = this.transform.position.z + Utils.NextFloat(0.0f, this.Radius) * Mathf.Sin(Utils.NextFloat(0.0f, 360.0f) * Mathf.Deg2Rad);
 
-            Color color = Color.HSVToRGB(Utils.NextFloat(0.0f, 1.0f), Utils.NextFloat(0.1f, 0.4f), 1.0f);
+            Color color = Color.HSVToRGB(Utils.NextFloat(0.0f, 1.0f), Utils.NextFloat(0.0f, 1.0f), 1.0f);
             Galaxy galaxy = Galaxy.Create(this.transform, pos, Galaxy.GeneratedName, (GalaxyShape) Utils.random.Next(0, 2), 
                 Utils.NextFloat(1.0f, 100.0f), Utils.NextFloat(0.1f, 0.3f), Utils.random.Next(2, 7), Utils.random.Next(1, 100), color);
-            galaxy.transform.rotation = UnityEngine.Random.rotation;
+            galaxy.transform.rotation = Utils.RandomRotation;
         }
     }
 }

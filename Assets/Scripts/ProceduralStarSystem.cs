@@ -86,13 +86,12 @@ public class ProceduralStarSystem : StarSystem
         numMoons = (int) ((float) numMoons * (-Mathf.Pow(1000.0f, 0.5f - distanceFromStar / Units.AU) + Utils.NextFloat(1.0f, 2.0f)));
 
         float prevDistance = Utils.NextFloat(1.0f, 40.0f);
-        float orbitalPeriodMultiplier = planet.diameter <= 30.0f ? Utils.NextFloat(2.0f, 50.0f) : 1.0f;
+        float regularMoonZone = planet.diameter * Random.Range(1.0f, 3.0f);
 
         for (int i = 0; i < numMoons; i++)
         {
             float distance = prevDistance * distanceScale;
-            float regularMoonZone = planet.diameter * Random.Range(1.0f, 2.0f);
-            float additionalDistance = 0;
+            float additionalDistance = 0.0f;
 
             prevDistance += 15.0f * Utils.NextFloat(1.0f, 3.0f);
 
@@ -118,11 +117,17 @@ public class ProceduralStarSystem : StarSystem
                 inclination = Utils.NextFloat(0.0f, 5.0f);
             }
 
-            float orbitalPeriod = (Mathf.Pow(1.0024f, distance) - 1.0f - (distance / 450.0f)) * 365.0f * orbitalPeriodMultiplier;
+            distance += diameter / 2.0f;
+
             float mass = Mathf.Pow(1.5f, diameter - 13.0f) * Units.EARTH_MASS * Utils.NextFloat(0.5f, 1.5f);
             float day = Utils.NextFloat(0.0f, 1.0f) < 0.75f ? Utils.NextFloat(8.0f, 100.0f) : Utils.NextFloat(101.0f, 10000.0f);
 
-            Moon moon = planet.AddMoon(distance + additionalDistance, orbitalPeriod, name, diameter, Utils.NextFloat(0.0f, 5.0f), day, mass, 
+            float gm = (6.67f * Mathf.Pow(10.0f, -11.0f)) * (planet.mass * Mathf.Pow(10.0f, 22.0f));
+            float distanceInMetersCubed = Mathf.Pow((distance + additionalDistance) * Mathf.Pow(10.0f, 4.0f) * 1000.0f, 3.0f);
+            float secondsSquared = ((4.0f * Mathf.Pow(Mathf.PI, 2.0f)) / gm) * distanceInMetersCubed;
+            float days = Mathf.Sqrt(secondsSquared) / 86400.0f;
+
+            Moon moon = planet.AddMoon(distance + additionalDistance, days, name, diameter, Utils.NextFloat(0.0f, 5.0f), day, mass, 
                 planet.transform.up, isIrregular, inclination, Utils.NextFloat(0.0f, 1.0f) <= 0.9f);
             float moonDistanceFromStar = this.star.DistanceFromSurface(moon.transform.position);
 
@@ -394,10 +399,7 @@ public class ProceduralStarSystem : StarSystem
             else
                 mass = Mathf.Pow(1.017f, diameter - 110.0f) * Units.JUPITER_MASS * Utils.NextFloat(0.5f, 1.5f);
 
-            if (distance >= 5.0f * Units.AU)
-                orbitalPeriod = Mathf.Pow(1.038f, distance / Units.AU + 65.0f) * 365.0f;
-            else
-                orbitalPeriod = (Mathf.Pow(1.67f, distance / Units.AU) - 1.0f + ((distance / Units.AU) / 3.0f)) * 365.0f * orbitalPeriodModifier;
+            orbitalPeriod = Mathf.Sqrt(Mathf.Pow(distance / Units.AU, 3)) * 365.0f;
 
             distance += diameter * 0.5f;
 
@@ -417,7 +419,7 @@ public class ProceduralStarSystem : StarSystem
             float moonDistanceScale = 1.0f;
 
             if (Random.Range(1, 25) == 1)
-                planet.AddRing(Random.Range(0.25f, 1.5f), Random.Range(0.5f, 2.0f), Utils.RandomChoose(Singleton.Instance?.ringMats));
+                planet.AddRing(Random.Range(0.25f, 1.5f), Random.Range(0.05f, 2.0f), Utils.RandomChoose(Singleton.Instance?.ringMats));
 
             if (planet.diameter <= 30.0f)
             {
