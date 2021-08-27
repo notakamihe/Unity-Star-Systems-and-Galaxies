@@ -1,4 +1,27 @@
 # Unity Star Systems and Galaxies
+
+## Set-up Instructions
+There are two ways that you can set this project up on your computer:
+<ul>
+  <li>
+    Option 1: Zip file
+    <p>
+      <ol type="1">
+        <li>Do NOT download the zip file from "Code" dropdown. Some assets will not be loaded correctly. Instead, download the "StarSystems.zip" file located in the "Releases" section of this repository.</li>
+        <li>Once downloaded and unzipped, open the project in Unity Hub.</li>
+      </ol>
+    </p>
+  </li>
+  <li>
+    Option 2: Git Clone 
+    <ol type="1">
+      <li>Ensure the Git CLI is installed.</li>
+      <li>Open the terminal or the command prompt and run <code>git clone https://github.com/notakamihe/Unity-Star-Systems-and-Galaxies.git</code> in the desired directory.</li>
+      <li>Open the cloned project in Unity Hub</li>
+    </ol>
+  </li>
+</ul>
+
 ## What is this project?
 This project is a first-person space simulation game that allows the player to take breathtaking views of celestial bodies as if they were there themselves. 
 Players can traverse the cosmos and explore the most fascinating apsects of the Universe such as the Solar System, exoplanets, stars, and galaxies. 
@@ -89,6 +112,7 @@ dwarfing even the largest galaxies. Users can specify the number of galaxies tha
 ## Notes
 - Distances are not 100% up to scale. If they were, the playable universe would be a lot a bigger than what is intended.
 - Orbits are circular rather than elliptical
+- Planet-landing is not recommended on an intergalactic scale. Movements become jerky when the universe is steered very far away from the origin.
 - With the exception of Kepler's third law, this project does not use any of the theories, laws and mathematics that are applied in real-world astrophysics. Celestial bodies mostly
 behave based on simple linear or exponential algebraic equations or conditional logic.
 
